@@ -1,0 +1,251 @@
+<?xml version="1.0" encoding="utf-8"?>
+<androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:id="@+id/main"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:background="@drawable/view_background"
+    tools:context=".Map.ReportDetailActivity">
+
+    <View
+        android:id="@+id/white_overlay"
+        android:layout_width="match_parent"
+        android:layout_height="0dp"
+        android:background="@color/peaceapp_gray"
+        app:layout_constraintTop_toTopOf="@+id/scrollReportDetail"
+        app:layout_constraintBottom_toTopOf="@id/bottom_navigation"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintEnd_toEndOf="parent" />
+
+    <TextView
+        android:id="@+id/txtTitleDetailReport"
+        android:layout_width="250dp"
+        android:layout_height="wrap_content"
+        android:fontFamily="@font/poppins_semibold"
+        android:gravity="center"
+        android:text="Reporte detallado"
+        android:textColor="@color/white"
+        android:textSize="32sp"
+        app:layout_constraintTop_toTopOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintBottom_toTopOf="@+id/scrollReportDetail"
+        android:layout_marginTop="40dp"/>
+
+    <ScrollView
+        android:id="@+id/scrollReportDetail"
+        android:layout_width="match_parent"
+        android:layout_height="0dp"
+        android:background="@color/peaceapp_gray"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintBottom_toTopOf="@+id/bottom_navigation"
+        app:layout_constraintTop_toBottomOf="@+id/txtTitleDetailReport"
+        android:layout_marginTop="40dp">
+
+        <LinearLayout
+            android:paddingVertical="10dp"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="vertical">
+
+            <LinearLayout
+                android:layout_marginTop="5dp"
+                android:layout_marginHorizontal="15dp"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="vertical"
+                android:id="@+id/containerReporteDetallado"
+                android:background="@drawable/rounded_card_report_map"
+                android:elevation="12dp">
+
+                <LinearLayout
+                    android:orientation="vertical"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:paddingHorizontal="30dp"
+                    android:paddingVertical="20dp">
+
+                    <LinearLayout
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:orientation="horizontal">
+
+                        <TextView
+                            android:layout_weight="1"
+                            android:id="@+id/txtTituloReporte"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:text="Titulo de reporte"
+                            android:textSize="24sp"
+                            android:fontFamily="@font/poppins_bold"
+                            android:textColor="@color/black"/>
+
+                        <ImageView
+                            android:layout_width="30dp"
+                            android:layout_height="25dp"
+                            android:src="@drawable/delete_icon"
+                            android:clickable="true"
+                            android:id="@+id/btnDeleteReport"
+                            android:visibility="gone"/>
+                    </LinearLayout>
+
+                    <TextView
+                        android:id="@+id/txtTipoReporte"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:text="Tipo de reporte"
+                        android:textSize="16sp"
+                        android:fontFamily="@font/poppins_bold"
+                        android:textColor="@color/black"/>
+
+                    <!-- ✔ ESTADO DEL REPORTE -->
+                    <TextView
+                        android:id="@+id/txtEstadoReporte"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:text="Estado"
+                        android:textSize="14sp"
+                        android:fontFamily="@font/poppins_bold"
+                        android:textColor="@color/black"
+                        android:layout_marginTop="4dp"/>
+
+                </LinearLayout>
+
+                <!-- ✔ IMAGEN (solo si no está rechazado) -->
+                <ImageView
+                    android:id="@+id/imgReporte"
+                    android:layout_width="match_parent"
+                    android:layout_height="250dp"
+                    android:src="@drawable/image_report_not_found"
+                    android:scaleType="fitXY"/>
+
+                <!-- ✔ MOTIVO DE RECHAZO -->
+                <TextView
+                    android:id="@+id/txtRejectionReason"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:padding="15dp"
+                    android:layout_margin="20dp"
+                    android:text="Motivo de rechazo"
+                    android:textSize="15sp"
+                    android:fontFamily="@font/poppins_regular"
+                    android:textColor="@color/white"
+                    android:background="@color/red"
+                    android:visibility="gone"
+                    android:gravity="center"/>
+
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:orientation="vertical"
+                    android:padding="20dp">
+
+                    <TextView
+                        android:id="@+id/txtUbicacionReporte"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:text="Ubicación"
+                        android:textSize="18sp"
+                        android:fontFamily="@font/poppins_bold"
+                        android:textColor="@color/black"/>
+
+                    <TextView
+                        android:id="@+id/txtFechaReporte"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:text="Fecha"
+                        android:textSize="16sp"
+                        android:fontFamily="@font/poppins_regular"
+                        android:textColor="@color/black"/>
+
+                    <TextView
+                        android:id="@+id/txtDescripcionReporte"
+                        android:layout_marginTop="10dp"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:text="Descripción"
+                        android:textSize="16sp"
+                        android:fontFamily="@font/poppins_regular"
+                        android:textColor="@color/black"/>
+
+                </LinearLayout>
+
+            </LinearLayout>
+
+            <!-- ⭐ NUEVO: BOTONES ADMIN (RECHAZAR / APROBAR) ⭐ -->
+            <LinearLayout
+                android:id="@+id/containerAccionesAdmin"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="horizontal"
+                android:gravity="center"
+                android:paddingHorizontal="20dp"
+                android:layout_marginTop="20dp"
+                android:visibility="gone">
+
+                <Button
+                    android:id="@+id/btnAprobarReporte"
+                    android:layout_width="0dp"
+                    android:layout_weight="1"
+                    android:layout_height="wrap_content"
+                    android:text="Aprobar"
+                    android:textColor="@color/white"
+                    android:fontFamily="@font/poppins_bold"
+                    android:textSize="13sp"
+                    android:backgroundTint="@color/peaceapp_green"
+                    app:cornerRadius="8dp"
+                    android:layout_marginEnd="6dp"/>
+
+                <Button
+                    android:id="@+id/btnRechazarReporte"
+                    android:layout_width="0dp"
+                    android:layout_weight="1"
+                    android:layout_height="wrap_content"
+                    android:text="Rechazar"
+                    android:textColor="@color/white"
+                    android:fontFamily="@font/poppins_bold"
+                    android:textSize="13sp"
+                    android:backgroundTint="@color/danger"
+                    app:cornerRadius="8dp"
+                    android:layout_marginStart="6dp"/>
+
+            </LinearLayout>
+
+            <Button
+                android:id="@+id/btnSalirReporteDetallado"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="Salir"
+                android:layout_marginTop="20dp"
+                android:paddingEnd="50dp"
+                android:paddingStart="50dp"
+                android:layout_gravity="center"
+                android:fontFamily="@font/poppins_medium"
+                android:backgroundTint="@color/peaceapp_pink"/>
+
+            <View
+                android:layout_width="match_parent"
+                android:layout_height="50dp"/>
+
+        </LinearLayout>
+
+    </ScrollView>
+
+    <com.google.android.material.bottomnavigation.BottomNavigationView
+        android:id="@+id/bottom_navigation"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:background="@color/white"
+        app:menu="@drawable/navigation_menu"
+        app:itemIconTint="@drawable/nav_item_color"
+        app:itemTextColor="@drawable/nav_item_color"
+        app:itemBackground="@drawable/nav_item_background"
+        android:backgroundTint="@color/white"
+        android:backgroundTintMode="src_over"
+        app:itemRippleColor="@color/white"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintStart_toStartOf="parent"/>
+
+</androidx.constraintlayout.widget.ConstraintLayout>

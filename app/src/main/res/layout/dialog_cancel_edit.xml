@@ -1,0 +1,84 @@
+<?xml version="1.0" encoding="utf-8"?>
+<androidx.cardview.widget.CardView xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="260dp"
+    android:layout_height="wrap_content"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    app:cardCornerRadius="16dp"
+    app:cardElevation="10dp"
+    android:layout_margin="10dp"
+    app:cardBackgroundColor="@color/white"
+    android:background="@android:color/transparent"
+    >
+
+    <LinearLayout
+        android:orientation="vertical"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginHorizontal="20dp"
+        >
+
+        <TextView
+            android:id="@+id/tvCancelEdit"
+            android:layout_marginTop="40dp"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="¿Descartar cambios?"
+            android:textSize="17sp"
+            android:fontFamily="@font/poppins_bold"
+            android:textColor="@color/black"
+            android:gravity="center"
+            />
+
+        <TextView
+            android:id="@+id/tvCancelEditDescription"
+            android:layout_marginTop="8dp"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="Todos los cambios realizados se perderán"
+            android:textSize="13sp"
+            android:fontFamily="@font/poppins_regular"
+            android:textColor="@color/nav_item_unselected"
+            android:gravity="center"
+            />
+
+        <LinearLayout
+            android:layout_width="fill_parent"
+            android:layout_height="wrap_content"
+            android:orientation="horizontal"
+            android:layout_marginTop="14dp"
+            android:layout_marginBottom="20dp"
+            >
+            <Button
+                android:id="@+id/btnCancel"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="Cancelar"
+                android:textColor="@color/black"
+                android:fontFamily="@font/poppins_bold"
+                android:textSize="13sp"
+                android:elegantTextHeight="true"
+                android:backgroundTint="@color/disabled"
+                app:cornerRadius="8dp"
+                />
+
+            <Button
+                android:id="@+id/btnDescartar"
+                android:layout_width="fill_parent"
+                android:layout_height="wrap_content"
+                android:text="Borrar"
+                android:textColor="@color/white"
+                android:fontFamily="@font/poppins_bold"
+                android:elegantTextHeight="true"
+                android:textSize="13sp"
+                android:backgroundTint="@color/danger"
+                app:cornerRadius="8dp"
+                android:layout_marginStart="8dp"
+                />
+
+        </LinearLayout>
+
+
+
+    </LinearLayout>
+
+</androidx.cardview.widget.CardView>

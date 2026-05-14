@@ -1,0 +1,82 @@
+<?xml version="1.0" encoding="utf-8"?>
+<androidx.cardview.widget.CardView xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:layout_width="280dp"
+    android:layout_height="wrap_content"
+    android:layout_margin="10dp"
+    app:cardCornerRadius="16dp"
+    app:cardElevation="10dp"
+    app:cardBackgroundColor="@color/white"
+    android:background="@android:color/transparent">
+
+    <LinearLayout
+        android:orientation="vertical"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginHorizontal="20dp">
+
+        <TextView
+            android:id="@+id/tvTitleReject"
+            android:layout_marginTop="40dp"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="Rechazar reporte"
+            android:textSize="17sp"
+            android:fontFamily="@font/poppins_bold"
+            android:textColor="@color/black"
+            android:gravity="center" />
+
+        <TextView
+            android:id="@+id/tvRejectMessage"
+            android:layout_marginTop="8dp"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="Indica el motivo del rechazo:"
+            android:textSize="13sp"
+            android:fontFamily="@font/poppins_regular"
+            android:textColor="@color/nav_item_unselected"
+            android:gravity="center" />
+
+        <EditText
+            android:id="@+id/etRejectReason"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:hint="Motivo del rechazo"
+            android:minHeight="80dp"
+            android:padding="10dp"
+            android:gravity="top|start"
+            android:layout_marginTop="12dp"
+            android:background="@drawable/input_background"
+            android:textColor="@color/black"
+            android:textSize="13sp"
+            android:fontFamily="@font/poppins_regular"
+            />
+
+        <Button
+            android:id="@+id/btnConfirmReject"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="Rechazar reporte"
+            android:textColor="@color/white"
+            android:fontFamily="@font/poppins_bold"
+            android:textSize="13sp"
+            android:backgroundTint="@color/danger"
+            android:layout_marginTop="16dp"
+            app:cornerRadius="8dp" />
+
+        <Button
+            android:id="@+id/btnCancelReject"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="Cancelar"
+            android:textColor="@color/black"
+            android:fontFamily="@font/poppins_bold"
+            android:textSize="13sp"
+            android:backgroundTint="@color/disabled"
+            android:layout_marginTop="6dp"
+            android:layout_marginBottom="20dp"
+            app:cornerRadius="8dp" />
+
+    </LinearLayout>
+
+</androidx.cardview.widget.CardView>

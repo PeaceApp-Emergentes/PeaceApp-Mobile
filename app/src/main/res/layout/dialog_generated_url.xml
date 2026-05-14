@@ -1,0 +1,106 @@
+<?xml version="1.0" encoding="utf-8"?>
+<androidx.cardview.widget.CardView xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="330dp"
+    android:layout_height="wrap_content"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    app:cardCornerRadius="50dp"
+    app:cardElevation="10dp"
+    android:layout_margin="10dp"
+    app:cardBackgroundColor="@color/white"
+    android:background="@android:color/transparent"
+    >
+
+    <LinearLayout
+        android:orientation="vertical"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginHorizontal="20dp"
+        android:layout_marginVertical="37dp"
+        >
+
+        <TextView
+            android:id="@+id/tvGeneratedTitle"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginVertical="40dp"
+            android:fontFamily="@font/poppins_bold"
+            android:gravity="center"
+                android:text="Copia y pega la URL generada con tu ubicación"
+            android:textColor="@color/black"
+            android:textSize="20sp" />
+
+        <androidx.constraintlayout.widget.ConstraintLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            >
+            <androidx.cardview.widget.CardView
+                android:id="@+id/cvUrlContainer"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                app:cardElevation="0dp"
+                app:cardCornerRadius="10dp"
+                android:layout_gravity="center"
+                app:cardBackgroundColor="#EDEDED"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintTop_toTopOf="parent"
+                android:layout_marginStart="5dp"
+                >
+                <TextView
+                    android:id="@+id/tvGeneratedUrl"
+
+                    android:text="http://www.peaceapp.com/u1tq24r"
+                    android:layout_width="match_parent"
+                    android:layout_height="match_parent"
+                    android:fontFamily="@font/poppins_medium"
+                    android:textColor="@color/nav_item_unselected"
+                    android:textSize="11sp"
+                    android:paddingHorizontal="10dp"
+                    android:gravity="center_vertical"
+                    android:layout_marginVertical="5dp"
+                    />
+            </androidx.cardview.widget.CardView>
+
+            <androidx.cardview.widget.CardView
+                android:id="@+id/cvCopyContainer"
+                android:layout_width="30dp"
+                android:layout_height="0dp"
+                app:cardElevation="0dp"
+                app:cardCornerRadius="5dp"
+                android:layout_gravity="center"
+                app:cardBackgroundColor="#EDEDED"
+                app:layout_constraintStart_toEndOf="@+id/cvUrlContainer"
+                app:layout_constraintTop_toTopOf="parent"
+                app:layout_constraintBottom_toBottomOf="parent"
+                android:layout_marginStart="10dp"
+                >
+                <ImageView
+                    android:id="@+id/ivCopy"
+                    android:layout_width="20dp"
+                    android:layout_height="20dp"
+                    android:src="@drawable/ic_copy"
+                    android:layout_gravity="center"
+                    app:tint="@color/nav_item_unselected" />
+            </androidx.cardview.widget.CardView>
+
+
+        </androidx.constraintlayout.widget.ConstraintLayout>
+
+        <Button
+            android:id="@+id/btnContinue"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="Continuar"
+            android:textColor="@color/black"
+            android:fontFamily="@font/poppins_medium"
+            android:textSize="13sp"
+            android:elegantTextHeight="true"
+            android:layout_marginTop="40dp"
+            android:layout_marginHorizontal="50dp"
+            android:backgroundTint="@color/disabled"
+            />
+
+
+
+    </LinearLayout>
+
+</androidx.cardview.widget.CardView>

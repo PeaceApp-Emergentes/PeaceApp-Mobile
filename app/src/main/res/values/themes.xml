@@ -1,0 +1,21 @@
+<resources xmlns:tools="http://schemas.android.com/tools">
+    <!-- Base application theme. -->
+    <style name="Base.Theme.PeaceApp" parent="Theme.Material3.DayNight.NoActionBar">
+        <!-- Customize your light theme here. -->
+        <item name="android:fontFamily">@font/poppins_regular</item>
+
+        <item name="colorPrimary">#5BA3B8</item>
+        <item name="colorPrimaryVariant">#257180</item>
+        <item name="colorOnPrimary">#FFFFFF</item>
+
+        <item name="colorSecondary">#8CC4D0</item>
+        <item name="colorOnSecondary">#FFFFFF</item>
+        <item name="android:textViewStyle">@style/textViewStyle</item>
+
+    </style>
+    <style name="textViewStyle" parent="Widget.MaterialComponents.TextView">
+        <item name="android:fontFamily">@font/poppins_regular</item>
+    </style>
+
+
+</resources>

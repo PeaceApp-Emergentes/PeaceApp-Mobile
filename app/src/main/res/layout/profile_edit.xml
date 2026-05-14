@@ -1,0 +1,206 @@
+<ScrollView
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:fillViewport="true"
+    tools:context=".Profile.ProfileEditDialogFragment">
+
+    <androidx.constraintlayout.widget.ConstraintLayout
+        android:id="@+id/profile_main"
+        android:paddingTop="20dp"
+        android:background="@drawable/profile_background"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content">
+
+        <Button
+            android:id="@+id/btnBack"
+            android:layout_width="92dp"
+            android:layout_height="40dp"
+            android:layout_margin="16dp"
+            android:drawableStart="@drawable/ic_arrow_left"
+            android:text="Salir"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toTopOf="parent" />
+
+        <ImageView
+            android:id="@+id/mainTxt"
+            android:layout_width="104dp"
+            android:layout_height="104dp"
+            android:layout_marginTop="20dp"
+            android:background="@layout/profile_photo_image"
+            app:layout_constraintBottom_toBottomOf="parent"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintHorizontal_bias="0.497"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toTopOf="parent"
+            app:layout_constraintVertical_bias="0.0" />
+
+        <FrameLayout
+            android:id="@+id/Layout_edit_name"
+            android:layout_width="380dp"
+            android:layout_height="60dp"
+            android:layout_marginTop="28dp"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintHorizontal_bias="0.483"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toBottomOf="@+id/mainTxt">
+
+            <RelativeLayout
+                android:layout_width="match_parent"
+                android:layout_height="match_parent">
+
+                <EditText
+                    android:id="@+id/edit_placeholder_name"
+                    android:layout_width="380dp"
+                    android:layout_height="wrap_content"
+                    android:layout_marginEnd="8dp"
+                    android:background="@drawable/rounded_background"
+                    android:fontFamily="@font/poppins_light"
+                    android:paddingLeft="20dp"
+                    android:hint="Ingresa tu nuevo nombre"
+                    android:textColor="#AFADAD"
+                    android:textSize="15sp"
+                    android:layout_centerInParent="true" />
+
+
+
+            </RelativeLayout>
+        </FrameLayout>
+
+        <FrameLayout
+            android:id="@+id/Layout_edit_lastname"
+            android:layout_width="380dp"
+            android:layout_height="60dp"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintHorizontal_bias="0.483"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toBottomOf="@+id/Layout_edit_name">
+
+            <RelativeLayout
+                android:layout_width="match_parent"
+                android:layout_height="match_parent">
+
+                <EditText
+                    android:id="@+id/edit_placeholder_lastname"
+                    android:layout_width="380dp"
+                    android:layout_height="wrap_content"
+                    android:layout_centerInParent="true"
+                    android:layout_marginEnd="8dp"
+                    android:background="@drawable/rounded_background"
+                    android:fontFamily="@font/poppins_light"
+                    android:paddingLeft="20dp"
+                    android:hint="Ingresa tu nuevo apellido"
+                    android:textColor="#AFADAD"
+                    android:textSize="15sp" />
+
+
+
+            </RelativeLayout>
+        </FrameLayout>
+
+        <FrameLayout
+            android:id="@+id/Layout_edit_email"
+            android:layout_width="380dp"
+            android:layout_height="60dp"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintHorizontal_bias="0.483"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toBottomOf="@+id/Layout_edit_lastname">
+
+            <RelativeLayout
+                android:layout_width="match_parent"
+                android:layout_height="match_parent">
+
+                <EditText
+                    android:id="@+id/edit_placeholder_email"
+                    android:layout_width="380dp"
+                    android:layout_height="wrap_content"
+                    android:layout_centerInParent="true"
+                    android:layout_marginEnd="8dp"
+                    android:background="@drawable/rounded_background"
+                    android:fontFamily="@font/poppins_light"
+                    android:paddingLeft="20dp"
+                    android:hint="Correo electronico"
+                    android:textColor="#AFADAD"
+                    android:textSize="15sp" />
+
+
+            </RelativeLayout>
+        </FrameLayout>
+
+        <FrameLayout
+            android:id="@+id/Layout_edit_phone"
+            android:layout_width="380dp"
+            android:layout_height="60dp"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintHorizontal_bias="0.483"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toBottomOf="@+id/Layout_edit_email">
+
+            <RelativeLayout
+                android:layout_width="match_parent"
+                android:layout_height="match_parent">
+
+                <EditText
+                    android:id="@+id/edit_placeholder_phone"
+                    android:layout_width="380dp"
+                    android:layout_height="wrap_content"
+                    android:layout_centerInParent="true"
+                    android:layout_marginEnd="8dp"
+                    android:background="@drawable/rounded_background"
+                    android:fontFamily="@font/poppins_light"
+                    android:paddingLeft="20dp"
+                    android:hint="Ingresa tu nuevo teléfono"
+                    android:textColor="#AFADAD"
+                    android:textSize="15sp" />
+
+            </RelativeLayout>
+        </FrameLayout>
+
+        <FrameLayout
+            android:id="@+id/Layout_edit_password"
+            android:layout_width="380dp"
+            android:layout_height="60dp"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintHorizontal_bias="0.483"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toBottomOf="@+id/Layout_edit_phone">
+
+            <RelativeLayout
+                android:layout_width="match_parent"
+                android:layout_height="match_parent">
+
+                <EditText
+                    android:id="@+id/edit_placeholder_password"
+                    android:layout_width="380dp"
+                    android:layout_height="wrap_content"
+                    android:layout_centerInParent="true"
+                    android:layout_marginEnd="8dp"
+                    android:background="@drawable/rounded_background"
+                    android:fontFamily="@font/poppins_light"
+                    android:paddingLeft="20dp"
+                    android:hint="Ingresa tu nuevo teléfono"
+                    android:textColor="#AFADAD"
+                    android:textSize="15sp" />
+
+
+            </RelativeLayout>
+        </FrameLayout>
+
+        <com.google.android.material.button.MaterialButton
+            android:id="@+id/btnEditarEnd"
+            android:layout_width="380dp"
+            android:layout_height="wrap_content"
+            android:layout_margin="20dp"
+            android:layout_marginTop="76dp"
+            android:text="Actualizar perfil"
+            app:layout_constraintBottom_toBottomOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toBottomOf="@+id/Layout_edit_password"
+            />
+
+
+    </androidx.constraintlayout.widget.ConstraintLayout>
+</ScrollView>

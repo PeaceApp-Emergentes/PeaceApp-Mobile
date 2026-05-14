@@ -1,0 +1,44 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <color name="black">#FF000000</color>
+    <color name="white">#FFFFFFFF</color>
+    <color name="peaceapp_blue">#1C597C</color>
+
+    <color name="green">#2ECC71</color>
+    <color name="orange">#F39C12</color>
+    <color name="red">#E74C3C</color>
+    <color name="yellow">#97891C</color>
+    <color name="peaceapp_green">#257180</color>
+    <color name="peaceapp_green_medium">#5BA3B8</color>
+    <color name="peaceapp_green_light">#8CC4D0</color>
+    <color name="peaceapp_green_extra_light">#D6E9F0</color>
+
+    <color name="peaceapp_pink" >#FF6673</color>
+    <color name="peaceapp_pink_medium">#FF9DA5</color>
+    <color name="peaceapp_pink_light">#FFC4C7</color>
+
+    <color name="initial_button_gray">#F4F4F4</color>
+    <color name="input_stroke">#B6B6B6</color>
+    <color name="input_focused_stroke">#91D0DC</color>
+    <color name="input_focused_solid">#FCFFFF</color>
+    <color name="signin_light_gray">#A2A2A2</color>
+    <color name="socials_google">#D44E42</color>
+    <color name="socials_facebook">#596399</color>
+    <color name="socials_linkedin">#5AA3C6</color>
+
+
+    <color name="disabled">#DCDCDC</color>
+    <color name="danger">#EA3C3D</color>
+    <color name="positive">#14AE5C</color>
+    <color name="peaceapp_gray">#F1F5F8</color>
+    <color name="peaceapp_blue_light_disable">#AFCDDD</color>
+    <color name="peaceapp_blue_dark_disable">#5B8399</color>
+    <color name="peaceapp_blue_light">#84A2B3</color>
+    <color name="peaceapp_bg_new_report">#E9ECF1</color>
+    <color name="nav_item_unselected">#83878A</color>
+    <color name="nav_item_selected">#1C597C</color>
+    <color name="asset_grey">#E6E6E6</color>
+
+    <color name="contact_input_background">#F1F5F8</color>
+
+</resources>
