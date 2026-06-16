@@ -62,7 +62,7 @@
             android:layout_marginTop="28dp"
             android:background="@drawable/rounded_edittext"
             android:hint="Ingresa tu contraseña"
-            android:inputType="textEmailAddress" />
+            android:inputType="textPassword" />
 
         <TextView
             android:id="@+id/passwordTopEditText"

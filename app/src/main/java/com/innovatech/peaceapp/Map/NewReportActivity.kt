@@ -1,5 +1,6 @@
 package com.innovatech.peaceapp.Map
 
+import android.widget.Switch
 import ReportSchema
 import android.app.Activity
 import android.app.Dialog
@@ -48,16 +49,24 @@ class NewReportActivity : AppCompatActivity() {
     private lateinit var edtDetail: EditText
     private lateinit var imgMoreEvidence: ImageView
     private lateinit var imgEvidence: ImageView
+    private lateinit var txtEvidenceSummary: TextView
     private lateinit var btnSave: Button
     private lateinit var btnCancel: Button
     private lateinit var progressBar: ProgressBar
     private lateinit var viewOverlay: View
     private lateinit var cloudinary: Cloudinary
-    private lateinit var imgBitmap: Bitmap
+    private lateinit var switchEmergency: Switch
+    private var imgBitmap: Bitmap? = null
+    private var videoUri: Uri? = null
+    private var audioUri: Uri? = null
     private var userId: Int = 0
 
     private val REQUEST_CODE_PERMISSIONS = 101
-    private val REQUEST_CODE_IMAGE_PICKER = 102
+    private val REQUEST_CODE_IMAGE_CAPTURE = 102
+    private val REQUEST_CODE_IMAGE_PICKER = 103
+    private val REQUEST_CODE_VIDEO_CAPTURE = 104
+    private val REQUEST_CODE_VIDEO_PICKER = 105
+    private val REQUEST_CODE_AUDIO_PICKER = 106
     private val REQUIRED_PERMISSIONS = arrayOf(
         android.Manifest.permission.CAMERA,
         android.Manifest.permission.READ_EXTERNAL_STORAGE,
@@ -75,7 +84,9 @@ class NewReportActivity : AppCompatActivity() {
         edtDetail = findViewById(R.id.edtDetail)
         imgMoreEvidence = findViewById(R.id.imgMoreEvidence)
         imgEvidence = findViewById(R.id.imgEvidence)
+        txtEvidenceSummary = findViewById(R.id.txtEvidenceSummary)
         btnSave = findViewById(R.id.btnSave)
+        switchEmergency = findViewById(R.id.switchEmergency)
         btnCancel = findViewById(R.id.btnCancel)
         progressBar = findViewById(R.id.progressBar)
         viewOverlay = findViewById(R.id.loadingOverlay)
@@ -93,7 +104,7 @@ class NewReportActivity : AppCompatActivity() {
         txtTypeReport.text = typeReport
 
         configCloudinary()
-        saveImageEvidence()
+        saveMultimediaEvidence()
         navigationMenu()
 
         btnCancel.setOnClickListener {
@@ -125,7 +136,7 @@ class NewReportActivity : AppCompatActivity() {
     private fun configCloudinary() {
         cloudinary = Cloudinary(
             ObjectUtils.asMap(
-                "cloud_name", "dqawjz3ih",
+                "cloud_name", "dynfr1idx",
                 "api_key", getString(R.string.cloudinary_api_key),
                 "api_secret", getString(R.string.cloudinary_api_secret)
             )
@@ -169,13 +180,15 @@ class NewReportActivity : AppCompatActivity() {
         val safeLocation = if (currentLocation.isBlank()) "Unknown location" else currentLocation
 
         // 📸 Subir imagen a Cloudinary
-        val urlImage = uploadImage()
-        if (urlImage.isNullOrEmpty()) {
-            showIncorrectSignUpDialog("Error subiendo la imagen. Intenta nuevamente.")
+        val imageUrl = uploadImage()
+        val videoUrl = uploadMedia(videoUri, "video")
+        val audioUrl = uploadMedia(audioUri, "audio")
+        if (imageUrl.isNullOrEmpty() && videoUrl.isNullOrEmpty() && audioUrl.isNullOrEmpty()) {
+            showIncorrectSignUpDialog("Error subiendo la evidencia. Intenta nuevamente.")
             return
         }
 
-        Log.i("URL cloudinary", urlImage.toString())
+        Log.i("CloudinaryEvidence", "image=$imageUrl video=$videoUrl audio=$audioUrl")
 
         // 📨 Crear objeto del reporte con datos válidos
         val report = ReportSchema(
@@ -183,10 +196,14 @@ class NewReportActivity : AppCompatActivity() {
             description = detail,
             type = mappedType,
             userId = userId,
-            imageUrl = urlImage,
+            imageUrl = imageUrl,
+            videoUrl = videoUrl,
+            audioUrl = audioUrl,
             location = safeLocation,
+            district = null,
             latitude = latitude.toString(),
-            longitude = longitude.toString()
+            longitude = longitude.toString(),
+            isEmergency = switchEmergency.isChecked
         )
         Log.i("REPORT_DEBUG", "userId=$userId, type=$mappedType, location='$safeLocation'")
         service.postReport(report).enqueue(object : Callback<Report> {
@@ -212,7 +229,7 @@ class NewReportActivity : AppCompatActivity() {
         })
     }
 
-    private fun saveImageEvidence() {
+    private fun saveMultimediaEvidence() {
         imgMoreEvidence.setOnClickListener {
             requestPermissions()
         }
@@ -222,7 +239,7 @@ class NewReportActivity : AppCompatActivity() {
         if (REQUIRED_PERMISSIONS.all {
                 ContextCompat.checkSelfPermission(this, it) == PackageManager.PERMISSION_GRANTED
             }) {
-            openImageOptions()
+            openEvidenceOptions()
         } else {
             ActivityCompat.requestPermissions(this, REQUIRED_PERMISSIONS, REQUEST_CODE_PERMISSIONS)
         }
@@ -236,21 +253,24 @@ class NewReportActivity : AppCompatActivity() {
         super.onRequestPermissionsResult(requestCode, permissions, grantResults)
         if (requestCode == REQUEST_CODE_PERMISSIONS) {
             if (grantResults.all { it == PackageManager.PERMISSION_GRANTED }) {
-                openImageOptions()
+                openEvidenceOptions()
             } else {
                 Toast.makeText(this, "Permissions not granted", Toast.LENGTH_SHORT).show()
             }
         }
     }
 
-    private fun openImageOptions() {
-        val options = arrayOf("Camera", "Gallery")
+    private fun openEvidenceOptions() {
+        val options = arrayOf("Tomar foto", "Elegir imagen", "Grabar video", "Elegir video", "Elegir audio")
         val builder = AlertDialog.Builder(this)
-        builder.setTitle("Select Image From")
+        builder.setTitle("Adjuntar evidencia")
         builder.setItems(options) { _, which ->
             when (which) {
                 0 -> openCamera()
                 1 -> openGallery()
+                2 -> openVideoCamera()
+                3 -> openVideoGallery()
+                4 -> openAudioPicker()
             }
         }
         builder.show()
@@ -258,7 +278,7 @@ class NewReportActivity : AppCompatActivity() {
 
     private fun openCamera() {
         val intent = Intent(MediaStore.ACTION_IMAGE_CAPTURE)
-        startActivityForResult(intent, REQUEST_CODE_IMAGE_PICKER)
+        startActivityForResult(intent, REQUEST_CODE_IMAGE_CAPTURE)
     }
 
     private fun openGallery() {
@@ -266,14 +286,47 @@ class NewReportActivity : AppCompatActivity() {
         startActivityForResult(intent, REQUEST_CODE_IMAGE_PICKER)
     }
 
+    private fun openVideoCamera() {
+        val intent = Intent(MediaStore.ACTION_VIDEO_CAPTURE)
+        startActivityForResult(intent, REQUEST_CODE_VIDEO_CAPTURE)
+    }
+
+    private fun openVideoGallery() {
+        val intent = Intent(Intent.ACTION_PICK, MediaStore.Video.Media.EXTERNAL_CONTENT_URI)
+        startActivityForResult(intent, REQUEST_CODE_VIDEO_PICKER)
+    }
+
+    private fun openAudioPicker() {
+        val intent = Intent(Intent.ACTION_GET_CONTENT).apply {
+            type = "audio/*"
+            addCategory(Intent.CATEGORY_OPENABLE)
+        }
+        startActivityForResult(Intent.createChooser(intent, "Elegir audio"), REQUEST_CODE_AUDIO_PICKER)
+    }
+
     override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {
         super.onActivityResult(requestCode, resultCode, data)
-        if (requestCode == REQUEST_CODE_IMAGE_PICKER && resultCode == Activity.RESULT_OK) {
-            val imageUri: Uri? = data?.data
-            val imageBitmap = data?.extras?.get("data") as? Bitmap
-            when {
-                imageUri != null -> showImgPreviewFromUri(imageUri)
-                imageBitmap != null -> showImgPreviewFromBitmap(imageBitmap)
+        if (resultCode != Activity.RESULT_OK) return
+
+        when (requestCode) {
+            REQUEST_CODE_IMAGE_CAPTURE -> {
+                val imageBitmap = data?.extras?.get("data") as? Bitmap
+                if (imageBitmap != null) showImgPreviewFromBitmap(imageBitmap)
+            }
+            REQUEST_CODE_IMAGE_PICKER -> data?.data?.let { showImgPreviewFromUri(it) }
+            REQUEST_CODE_VIDEO_CAPTURE, REQUEST_CODE_VIDEO_PICKER -> {
+                videoUri = data?.data
+                if (videoUri != null) {
+                    imgEvidence.setImageResource(R.drawable.evidence_video)
+                    updateEvidenceSummary()
+                }
+            }
+            REQUEST_CODE_AUDIO_PICKER -> {
+                audioUri = data?.data
+                if (audioUri != null) {
+                    imgEvidence.setImageResource(R.drawable.evidence_audio)
+                    updateEvidenceSummary()
+                }
             }
         }
     }
@@ -282,27 +335,64 @@ class NewReportActivity : AppCompatActivity() {
         val bitmap = BitmapFactory.decodeStream(contentResolver.openInputStream(imageUri))
         imgEvidence.setImageBitmap(bitmap)
         imgBitmap = bitmap
+        updateEvidenceSummary()
     }
 
     private fun showImgPreviewFromBitmap(bitmap: Bitmap) {
         imgEvidence.setImageBitmap(bitmap)
         imgBitmap = bitmap
+        updateEvidenceSummary()
     }
 
     private suspend fun uploadImage(): String? {
-        if (!this::imgBitmap.isInitialized) {
-            Toast.makeText(this, "No image selected", Toast.LENGTH_SHORT).show()
-            return null
-        }
+        val bitmap = imgBitmap ?: return null
 
         val file = File(getExternalFilesDir(Environment.DIRECTORY_PICTURES), "temp.jpg")
         FileOutputStream(file).use {
-            imgBitmap.compress(Bitmap.CompressFormat.JPEG, 100, it)
+            bitmap.compress(Bitmap.CompressFormat.JPEG, 100, it)
         }
 
+        return uploadFileToCloudinary(file)
+    }
+
+    private suspend fun uploadMedia(uri: Uri?, prefix: String): String? {
+        if (uri == null) return null
+
+        val extension = when (prefix) {
+            "video" -> ".mp4"
+            "audio" -> ".m4a"
+            else -> ".bin"
+        }
+        val file = File(cacheDir, "peaceapp_${prefix}_${System.currentTimeMillis()}$extension")
+        contentResolver.openInputStream(uri)?.use { input ->
+            FileOutputStream(file).use { output -> input.copyTo(output) }
+        } ?: return null
+
+        return uploadFileToCloudinary(file)
+    }
+
+    private suspend fun uploadFileToCloudinary(file: File): String? {
         return withContext(Dispatchers.IO) {
-            val result = cloudinary.uploader().upload(file, ObjectUtils.emptyMap())
-            result["url"].toString()
+            val result = cloudinary.uploader().upload(
+                file,
+                ObjectUtils.asMap(
+                    "upload_preset", "peaceapp_evidence",
+                    "resource_type", "auto"
+                )
+            )
+            result["secure_url"]?.toString() ?: result["url"]?.toString()
+        }
+    }
+
+    private fun updateEvidenceSummary() {
+        val selected = mutableListOf<String>()
+        if (imgBitmap != null) selected.add("imagen")
+        if (videoUri != null) selected.add("video")
+        if (audioUri != null) selected.add("audio")
+        txtEvidenceSummary.text = if (selected.isEmpty()) {
+            "Sin evidencias adjuntas"
+        } else {
+            "Evidencias: ${selected.joinToString(", ")}"
         }
     }
 
@@ -311,8 +401,8 @@ class NewReportActivity : AppCompatActivity() {
             showIncorrectSignUpDialog("Asegúrate de llenar todos los campos")
             return false
         }
-        if (imgEvidence.drawable == null || !this::imgBitmap.isInitialized) {
-            showIncorrectSignUpDialog("Asegúrate de subir una imagen")
+        if (imgBitmap == null && videoUri == null && audioUri == null) {
+            showIncorrectSignUpDialog("Asegúrate de subir al menos una evidencia")
             return false
         }
         return true

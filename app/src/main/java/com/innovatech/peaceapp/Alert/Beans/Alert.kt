@@ -1,12 +1,16 @@
 package com.innovatech.peaceapp.Alert.Beans
 
+import com.google.gson.annotations.SerializedName
+
 class Alert {
     var id: Int = 0  // Default value for id
     var location: String
     var type: String
     var description: String?
+    @SerializedName("userId")
     var idUser: Int
     var imageUrl: String? // Property for the image URL
+    @SerializedName("reportId")
     var idReport: Long? // Foreign key for report ID, can be nullable
 
     // Constructor with id and idReport (for cases where the Alert is already created)

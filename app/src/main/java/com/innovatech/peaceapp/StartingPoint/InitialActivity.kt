@@ -13,6 +13,9 @@ import androidx.appcompat.app.AppCompatActivity
 import androidx.core.view.ViewCompat
 import androidx.core.view.WindowInsetsCompat
 import com.google.android.material.button.MaterialButton
+import com.innovatech.peaceapp.GlobalToken
+import com.innovatech.peaceapp.GlobalUserEmail
+import com.innovatech.peaceapp.Map.MapActivity
 import com.innovatech.peaceapp.R
 import com.innovatech.peaceapp.ShareLocation.ContactsListActivity
 
@@ -75,6 +78,7 @@ class InitialActivity : AppCompatActivity() {
             startActivity(intent)
         }
         btnSignIn.setOnClickListener{
+            if (checkSessionAndGoToMap()) return@setOnClickListener
             val intent = Intent(this, SignInActivity::class.java)
             startActivity(intent)
         }
@@ -91,5 +95,25 @@ class InitialActivity : AppCompatActivity() {
     }
     private fun textAnimation() {
 
+    }
+
+    private fun checkSessionAndGoToMap(): Boolean {
+        val sharedPref = getSharedPreferences("GlobalPrefs", MODE_PRIVATE)
+        val savedToken = sharedPref.getString("authToken", null)
+        val savedEmail = sharedPref.getString("userEmail", null)
+        
+        if (!savedToken.isNullOrEmpty() && !savedEmail.isNullOrEmpty()) {
+            GlobalToken.setToken(savedToken)
+            GlobalUserEmail.setEmail(savedEmail)
+            
+            val intent = Intent(this, MapActivity::class.java).apply {
+                putExtra("token", savedToken)
+                flags = Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_CLEAR_TASK
+            }
+            startActivity(intent)
+            finish()
+            return true
+        }
+        return false
     }
 }

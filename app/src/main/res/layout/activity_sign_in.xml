@@ -96,18 +96,6 @@
 
                 />
 
-            <ImageView
-                android:id="@+id/iv_eye"
-                android:layout_width="22dp"
-                android:layout_height="wrap_content"
-                android:layout_marginEnd="14dp"
-                android:paddingVertical="13dp"
-                android:src="@drawable/ic_open_eye"
-                app:layout_constraintEnd_toEndOf="@id/cl_password"
-                app:layout_constraintTop_toTopOf="@id/cl_password"
-                app:layout_constraintBottom_toBottomOf="@id/cl_password"
-                app:tint="@color/input_stroke" />
-
         </androidx.constraintlayout.widget.ConstraintLayout>
 
         <TextView

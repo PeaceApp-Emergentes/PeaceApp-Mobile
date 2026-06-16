@@ -107,7 +107,7 @@ class EditProfileActivity : AppCompatActivity() {
     private fun configCloudinary() {
         cloudinary = Cloudinary(
             ObjectUtils.asMap(
-                "cloud_name", "dqawjz3ih",
+                "cloud_name", "dynfr1idx",
                 "api_key", getString(R.string.cloudinary_api_key),
                 "api_secret", getString(R.string.cloudinary_api_secret)
             )
@@ -263,13 +263,8 @@ class EditProfileActivity : AppCompatActivity() {
             return false
         }
 
-        if (!android.util.Patterns.PHONE.matcher(phone).matches()) {
-            showIncorrectEditDialog("Teléfono no válido")
-            return false
-        }
-
-        if (phone.length != 9) {
-            showIncorrectEditDialog("El teléfono debe tener 9 dígitos")
+        if (!Regex("^9\\d{8}\$").matches(phone)) {
+            showIncorrectEditDialog("El teléfono móvil debe tener 9 dígitos y empezar con 9")
             return false
         }
 
@@ -408,7 +403,7 @@ class EditProfileActivity : AppCompatActivity() {
         outputStream.close()
 
         url = withContext(Dispatchers.IO) {
-            val result = cloudinary.uploader().upload(file, ObjectUtils.emptyMap())
+            val result = cloudinary.uploader().upload(file, ObjectUtils.asMap("upload_preset", "peaceapp_evidence"))
             result["url"].toString()
         }
 

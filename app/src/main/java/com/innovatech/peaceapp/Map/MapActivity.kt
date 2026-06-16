@@ -1,12 +1,15 @@
 package com.innovatech.peaceapp.Map
 
 import Beans.Location
+import ReportSchema
 import android.animation.ValueAnimator
+import android.app.AlertDialog
 import android.content.Intent
 import android.graphics.Bitmap
 import android.graphics.Canvas
 import android.graphics.Rect
 import android.graphics.drawable.Drawable
+import android.net.Uri
 import android.os.Bundle
 import android.os.Handler
 import android.text.Editable
@@ -38,6 +41,7 @@ import com.innovatech.peaceapp.DB.Entities.LocationModel
 import com.innovatech.peaceapp.GlobalToken
 import com.innovatech.peaceapp.GlobalUserEmail
 import com.innovatech.peaceapp.Map.Adapters.AdapterLocationRecent
+import com.innovatech.peaceapp.Map.Beans.MunicipalityProfile
 import com.innovatech.peaceapp.Map.Beans.PropertiesPlace
 import com.innovatech.peaceapp.Map.Beans.Report
 import com.innovatech.peaceapp.Map.Models.RetrofitClient
@@ -111,6 +115,8 @@ class MapActivity : AppCompatActivity() {
     private lateinit var btnNewReport: LinearLayout
     private var lastRecentLongitude: Double = 0.0
     private var lastRecentLatitude: Double = 0.0
+    private var realUserLocation: Point? = null
+    private var realUserLocationName: String = ""
 
     private lateinit var handler: Handler
     private val proximityCheckRunnable = object : Runnable {
@@ -130,6 +136,17 @@ class MapActivity : AppCompatActivity() {
         setContentView(R.layout.activity_map)
         handler = Handler()
         handler.post(proximityCheckRunnable)
+
+        // Permiso de notificaciones (Android 13+)
+        if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.TIRAMISU &&
+            androidx.core.content.ContextCompat.checkSelfPermission(
+                this, android.Manifest.permission.POST_NOTIFICATIONS
+            ) != android.content.pm.PackageManager.PERMISSION_GRANTED
+        ) {
+            ActivityCompat.requestPermissions(
+                this, arrayOf(android.Manifest.permission.POST_NOTIFICATIONS), 1001
+            )
+        }
         // Example function that updates the alert counter
         val sharedPref = getSharedPreferences("GlobalPrefs", MODE_PRIVATE)
         userId = sharedPref.getInt("userId", 0)
@@ -160,6 +177,7 @@ class MapActivity : AppCompatActivity() {
         expandArrow = findViewById(R.id.expand_arrow);
         compressedArrow = findViewById(R.id.compressed_arrow);
         btnNewReport = findViewById(R.id.ll_create_new_report);
+        val btnSosEmergency = findViewById<ConstraintLayout>(R.id.btnSosEmergency)
         email = GlobalUserEmail.email
         userPhoto.setOnClickListener {
             val intent = Intent(this, MainProfileActivity::class.java)
@@ -244,6 +262,9 @@ class MapActivity : AppCompatActivity() {
             val intent = Intent(this, TypeReportsActivity::class.java)
             intent.putExtra("token", token)
             startActivity(intent)
+        }
+        btnSosEmergency.setOnClickListener {
+            sendSosEmergency()
         }
 
         loadUserPhoto()
@@ -496,7 +517,7 @@ class MapActivity : AppCompatActivity() {
                             "Otro" -> typeReport = R.drawable.other_marker
                         }
 
-                        addMarker(location.latitude, location.longitude, typeReport)
+                        addMarker(location.latitude, location.longitude, typeReport, location.idReport)
                     }
                 }
             }
@@ -508,7 +529,7 @@ class MapActivity : AppCompatActivity() {
 
     }
 
-    private fun addMarker(latitude: Double, longitude: Double, svgResId: Int) {
+    private fun addMarker(latitude: Double, longitude: Double, svgResId: Int, reportId: Int) {
         val drawable = AppCompatResources.getDrawable(this, svgResId)
         val bitmap = drawableToBitmap(drawable!!)
 
@@ -519,7 +540,43 @@ class MapActivity : AppCompatActivity() {
             .withPoint(point)
             .withIconImage(bitmap)
             .withIconSize(0.5)
-        pointAnnotationManager.create(pointAnnotationOptions)
+        val annotation = pointAnnotationManager.create(pointAnnotationOptions)
+
+        pointAnnotationManager.addClickListener { clickedAnnotation ->
+            if (clickedAnnotation == annotation) {
+                showReportQuickDetails(reportId)
+                true
+            } else {
+                false
+            }
+        }
+    }
+
+    private fun showReportQuickDetails(reportId: Int) {
+        val service = RetrofitClient.getClient(token)
+
+        service.getReportById(reportId).enqueue(object : Callback<Report> {
+            override fun onResponse(call: Call<Report>, response: Response<Report>) {
+                val report = response.body()
+                if (response.isSuccessful && report != null) {
+                    openReportDetail(report)
+                } else {
+                    Toast.makeText(this@MapActivity, "No se pudo cargar el reporte", Toast.LENGTH_SHORT).show()
+                }
+            }
+
+            override fun onFailure(call: Call<Report>, t: Throwable) {
+                Log.e("MapActivity", "Error cargando reporte $reportId: ${t.message}")
+                Toast.makeText(this@MapActivity, "No se pudo conectar al servidor", Toast.LENGTH_SHORT).show()
+            }
+        })
+    }
+
+    private fun openReportDetail(report: Report) {
+        val intent = Intent(this, ReportDetailActivity::class.java)
+        intent.putExtra("report", report)
+        intent.putExtra("token", token)
+        startActivity(intent)
     }
     private fun drawableToBitmap(drawable: Drawable): Bitmap {
         val bitmap = Bitmap.createBitmap(
@@ -561,6 +618,10 @@ class MapActivity : AppCompatActivity() {
             val latitude = point.latitude()
             val longitude = point.longitude()
 
+            // Mantener la ubicación en vivo para la detección de proximidad
+            realUserLocation = point
+            coordinatesCurrentLocation = point
+
             if (c == 0) {
                 obtainNamePlace(longitude, latitude)
                 moveCamera(longitude, latitude)
@@ -589,6 +650,9 @@ class MapActivity : AppCompatActivity() {
 
                     }else{
                         currentLocation = place?.features?.get(0)?.properties?.name_preferred.toString()
+                        if (isSamePoint(realUserLocation, longitude, latitude)) {
+                            realUserLocationName = currentLocation
+                        }
                         coordinatesCurrentLocation = Point.fromLngLat(longitude, latitude)
                         txtCurrentLocation.text = currentLocation
 
@@ -604,6 +668,106 @@ class MapActivity : AppCompatActivity() {
         })
     }
 
+    private fun sendSosEmergency() {
+        val livePoint = realUserLocation
+        if (livePoint == null || (livePoint.latitude() == 0.0 && livePoint.longitude() == 0.0)) {
+            Toast.makeText(this, "Activa la ubicación para enviar SOS", Toast.LENGTH_LONG).show()
+            locateCurrentPosition()
+            return
+        }
+
+        val sosLocation = if (realUserLocationName.isNotBlank()) {
+            realUserLocationName
+        } else {
+            "SOS: ${livePoint.latitude()}, ${livePoint.longitude()}"
+        }
+
+        val sosReport = ReportSchema(
+            title = "SOS",
+            description = "Alerta SOS enviada desde la app móvil.",
+            type = "OTHER",
+            userId = userId,
+            imageUrl = null,
+            videoUrl = null,
+            audioUrl = null,
+            location = sosLocation,
+            district = null,
+            latitude = livePoint.latitude().toString(),
+            longitude = livePoint.longitude().toString(),
+            isEmergency = true
+        )
+
+        val service = RetrofitClient.getClient(token)
+        service.postReport(sosReport).enqueue(object : Callback<Report> {
+            override fun onResponse(call: Call<Report>, response: Response<Report>) {
+                val createdReport = response.body()
+                if (response.isSuccessful && createdReport != null) {
+                    fetchMunicipalityForSos(createdReport)
+                } else {
+                    Log.e("SOS", "Error ${response.code()}: ${response.message()}")
+                    Toast.makeText(this@MapActivity, "No se pudo enviar la alerta SOS", Toast.LENGTH_LONG).show()
+                }
+            }
+
+            override fun onFailure(call: Call<Report>, t: Throwable) {
+                Log.e("SOS", "Error enviando SOS: ${t.message}")
+                Toast.makeText(this@MapActivity, "No se pudo conectar para enviar SOS", Toast.LENGTH_LONG).show()
+            }
+        })
+    }
+
+    private fun fetchMunicipalityForSos(report: Report) {
+        val district = report.district
+        if (district.isNullOrBlank()) {
+            showSosConfirmation(null, "Alerta SOS enviada. No se encontró distrito para llamada rápida.")
+            return
+        }
+
+        val service = RetrofitClient.getClient(token)
+        service.getMunicipalityByDistrict(district).enqueue(object : Callback<MunicipalityProfile> {
+            override fun onResponse(call: Call<MunicipalityProfile>, response: Response<MunicipalityProfile>) {
+                val municipality = response.body()
+                if (response.isSuccessful && municipality != null) {
+                    showSosConfirmation(municipality, "Alerta SOS enviada a ${municipality.district ?: district}.")
+                } else {
+                    showSosConfirmation(null, "Alerta SOS enviada a $district. No se encontró teléfono municipal.")
+                }
+            }
+
+            override fun onFailure(call: Call<MunicipalityProfile>, t: Throwable) {
+                Log.e("SOS", "No se pudo obtener municipalidad: ${t.message}")
+                showSosConfirmation(null, "Alerta SOS enviada. No se pudo cargar el teléfono municipal.")
+            }
+        })
+    }
+
+    private fun showSosConfirmation(municipality: MunicipalityProfile?, message: String) {
+        val phone = municipality?.phone?.takeIf { it.isNotBlank() }
+        val builder = AlertDialog.Builder(this)
+            .setTitle("SOS enviado")
+            .setMessage(
+                if (phone != null) {
+                    "$message\nMunicipalidad: ${municipality.municipalityName ?: "Municipalidad"}\nTeléfono: $phone"
+                } else {
+                    message
+                }
+            )
+            .setPositiveButton("Aceptar", null)
+
+        if (phone != null) {
+            builder.setNegativeButton("Llamar ahora") { _, _ ->
+                startActivity(Intent(Intent.ACTION_DIAL, Uri.parse("tel:$phone")))
+            }
+        }
+
+        builder.show()
+    }
+
+    private fun isSamePoint(point: Point?, longitude: Double, latitude: Double): Boolean {
+        if (point == null) return false
+        return kotlin.math.abs(point.longitude() - longitude) < 0.000001 &&
+                kotlin.math.abs(point.latitude() - latitude) < 0.000001
+    }
 
     private fun moveCamera(longitude: Double, latitude: Double) {
         mapView.camera.easeTo(
@@ -804,6 +968,8 @@ class MapActivity : AppCompatActivity() {
 
                 Log.i("AlertCreate", "🚀 Creando alerta para reporte ID ${report.id} (${report.type})")
 
+                showProximityNotification(report)
+
                 val alertSchema = AlertSchema(
                     location = report.location,
                     type = report.type,
@@ -842,7 +1008,8 @@ class MapActivity : AppCompatActivity() {
                 if (alerts != null) {
                     // Check if any alert matches the current alert schema or has the same id
                     val duplicateAlert = alerts.find {
-                                (it.location == alertSchema.location &&
+                                (it.idUser == alertSchema.userId &&
+                                        it.location == alertSchema.location &&
                                         it.type == alertSchema.type &&
                                         it.description == alertSchema.description)
                     }
@@ -867,6 +1034,60 @@ class MapActivity : AppCompatActivity() {
         alertDialog.setPositiveButton("OK") { dialog, _ -> dialog.dismiss() }
         alertDialog.show()
     }
+    // ======================= Notificación de proximidad =======================
+    private fun tipoEnEspanol(type: String): String {
+        return when (type.uppercase()) {
+            "ROBBERY" -> "Robo"
+            "HARASSMENT" -> "Acoso"
+            "ACCIDENT" -> "Accidente"
+            "DARK_AREA" -> "Zona oscura"
+            else -> "Incidente"
+        }
+    }
+
+    private fun showProximityNotification(report: Report) {
+        val channelId = "proximity_alerts"
+        val manager = getSystemService(android.content.Context.NOTIFICATION_SERVICE) as android.app.NotificationManager
+
+        if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.O) {
+            val channel = android.app.NotificationChannel(
+                channelId,
+                "Alertas de proximidad",
+                android.app.NotificationManager.IMPORTANCE_HIGH
+            )
+            channel.description = "Avisos cuando te acercas a una zona de riesgo"
+            manager.createNotificationChannel(channel)
+        }
+
+        if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.TIRAMISU &&
+            androidx.core.content.ContextCompat.checkSelfPermission(
+                this, android.Manifest.permission.POST_NOTIFICATIONS
+            ) != android.content.pm.PackageManager.PERMISSION_GRANTED
+        ) {
+            Log.w("AlertNotif", "Sin permiso POST_NOTIFICATIONS; no se muestra la notificación")
+            return
+        }
+
+        val intent = Intent(this, MapActivity::class.java)
+        intent.putExtra("token", token)
+        val pending = android.app.PendingIntent.getActivity(
+            this, report.id, intent,
+            android.app.PendingIntent.FLAG_IMMUTABLE or android.app.PendingIntent.FLAG_UPDATE_CURRENT
+        )
+
+        val notification = androidx.core.app.NotificationCompat.Builder(this, channelId)
+            .setSmallIcon(R.drawable.baseline_warning_24)
+            .setContentTitle("Zona de riesgo cercana")
+            .setContentText("${tipoEnEspanol(report.type)} cerca de ${report.location}")
+            .setPriority(androidx.core.app.NotificationCompat.PRIORITY_HIGH)
+            .setAutoCancel(true)
+            .setContentIntent(pending)
+            .build()
+
+        manager.notify(report.id, notification)
+        Log.i("AlertNotif", "🔔 Notificación de proximidad mostrada para reporte ${report.id}")
+    }
+
     private fun postAlert(alertSchema: AlertSchema) {
         val service = RetrofitClient.getClient(token)
 

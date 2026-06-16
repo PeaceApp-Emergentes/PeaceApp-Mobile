@@ -3,6 +3,7 @@ package com.innovatech.peaceapp.Map
 import android.app.Dialog
 import android.content.Intent
 import android.media.Image
+import android.net.Uri
 import android.os.Bundle
 import android.util.Log
 import android.view.View
@@ -40,6 +41,9 @@ class ReportDetailActivity : AppCompatActivity() {
     private lateinit var btnAprobar: Button
     private lateinit var btnRechazar: Button
     private lateinit var containerAccionesAdmin: View
+    private lateinit var containerMultimedia: View
+    private lateinit var btnVerVideo: Button
+    private lateinit var btnEscucharAudio: Button
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -72,6 +76,9 @@ class ReportDetailActivity : AppCompatActivity() {
         btnAprobar = findViewById(R.id.btnAprobarReporte)
         btnRechazar = findViewById(R.id.btnRechazarReporte)
         containerAccionesAdmin = findViewById(R.id.containerAccionesAdmin)
+        containerMultimedia = findViewById(R.id.containerMultimedia)
+        btnVerVideo = findViewById(R.id.btnVerVideo)
+        btnEscucharAudio = findViewById(R.id.btnEscucharAudio)
 
         btnAprobar.setOnClickListener { approveReport() }
         btnRechazar.setOnClickListener { showRejectDialog() }
@@ -256,6 +263,7 @@ class ReportDetailActivity : AppCompatActivity() {
         // ESTADO TRADUCIDO
         txtEstadoReporte.text = when(report.state) {
             "APPROVED" -> "Aprobado"
+            "ATTENDED" -> "Atendido"
             "IN_REVIEW" -> "En revisión"
             "PENDING" -> "Pendiente"
             "REJECTED" -> "Rechazado"
@@ -272,12 +280,36 @@ class ReportDetailActivity : AppCompatActivity() {
                 else
                     "Este reporte fue rechazado"
         } else {
-            imgReporte.visibility = View.VISIBLE
             txtRejectionReason.visibility = View.GONE
-            Picasso.get().load(report.imageUrl)
-                .resize(300, 300)
-                .centerCrop().into(imgReporte)
+            if (report.imageUrl.isNullOrBlank()) {
+                imgReporte.visibility = View.GONE
+            } else {
+                imgReporte.visibility = View.VISIBLE
+                Picasso.get().load(report.imageUrl)
+                    .resize(300, 300)
+                    .centerCrop().into(imgReporte)
+            }
         }
+
+        setupMultimediaActions()
+    }
+
+    private fun setupMultimediaActions() {
+        val hasVideo = !report.videoUrl.isNullOrBlank()
+        val hasAudio = !report.audioUrl.isNullOrBlank()
+
+        containerMultimedia.visibility = if (hasVideo || hasAudio) View.VISIBLE else View.GONE
+        btnVerVideo.visibility = if (hasVideo) View.VISIBLE else View.GONE
+        btnEscucharAudio.visibility = if (hasAudio) View.VISIBLE else View.GONE
+
+        btnVerVideo.setOnClickListener { openEvidenceUrl(report.videoUrl) }
+        btnEscucharAudio.setOnClickListener { openEvidenceUrl(report.audioUrl) }
+    }
+
+    private fun openEvidenceUrl(url: String?) {
+        if (url.isNullOrBlank()) return
+        val intent = Intent(Intent.ACTION_VIEW, Uri.parse(url))
+        startActivity(intent)
     }
 
     private fun translateType(type: String?): String {

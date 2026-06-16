@@ -8,7 +8,6 @@ import android.text.SpannableString
 import android.text.style.UnderlineSpan
 import android.util.Log
 import android.widget.Button
-import android.widget.ImageView
 import android.widget.TextView
 import android.widget.Toast
 import androidx.activity.enableEdgeToEdge
@@ -36,8 +35,6 @@ class SignInActivity : AppCompatActivity() {
     private lateinit var edtPassword: TextView
 
     private lateinit var tvForgotPassword: TextView
-    private lateinit var ivEye: ImageView
-    private var passwordFieldSelected = false
 
 
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -75,15 +72,11 @@ class SignInActivity : AppCompatActivity() {
 
         edtPassword.setOnFocusChangeListener { v, hasFocus ->
             if(hasFocus){
-                passwordFieldSelected = true
                 edtPassword.setBackgroundResource(R.drawable.auth_input_focused)
                 edtPassword.setHintTextColor(resources.getColor(R.color.input_focused_stroke))
-                ivEye.drawable.setTint(resources.getColor(R.color.input_focused_stroke))
             }else{
-                passwordFieldSelected = false
                 edtPassword.setBackgroundResource(R.drawable.auth_input)
                 edtPassword.setHintTextColor(resources.getColor(R.color.input_stroke))
-                ivEye.drawable.setTint(resources.getColor(R.color.input_stroke))
             }
         }
     }
@@ -93,7 +86,6 @@ class SignInActivity : AppCompatActivity() {
         btnSignUp = findViewById<TextView>(R.id.tv_create_account)
         edtEmail = findViewById<TextView>(R.id.et_email)
         edtPassword = findViewById<TextView>(R.id.et_password)
-        ivEye = findViewById<ImageView>(R.id.iv_eye)
         tvForgotPassword = findViewById<TextView>(R.id.tv_forgot_password)
     }
 
@@ -108,9 +100,6 @@ class SignInActivity : AppCompatActivity() {
             startActivity(intent)
         }
 
-        ivEye.setOnClickListener {
-            changePasswordVisibility(passwordFieldSelected)
-        }
         tvForgotPassword.setOnClickListener {
             val intent = Intent(this, ForgotPasswordActivity::class.java)
             startActivity(intent)
@@ -125,13 +114,21 @@ class SignInActivity : AppCompatActivity() {
                 if(response.isSuccessful){
                     val user = response.body()
                     if(user?.username != null){
+                        // La app móvil es exclusiva para ciudadanos: bloquear cuentas municipales.
+                        if (user.role?.uppercase()?.contains("MUNICIPALITY") == true) {
+                            showIncorrectSignInDialog("Esta cuenta es de una municipalidad. " +
+                                    "Ingresa desde la aplicación web de PeaceApp.")
+                            return
+                        }
                         val intent = Intent(this@SignInActivity, MapActivity::class.java)
                         val token = user.token
 
                         val sharedPref = getSharedPreferences("GlobalPrefs", MODE_PRIVATE)
                         with(sharedPref.edit()) {
                             putInt("userId", user.id)
-                            putString("userRole",user.role)
+                            putString("userRole", user.role)
+                            putString("authToken", token)
+                            putString("userEmail", email)
                             apply()
                         }
 
@@ -139,7 +136,9 @@ class SignInActivity : AppCompatActivity() {
                         GlobalUserEmail.setEmail(email)
 
                         intent.putExtra("token", token)
+                        intent.flags = Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_CLEAR_TASK
                         startActivity(intent)
+                        finish()
                     }else {
                         Log.e("Mensaje", user!!.message)
                         // mostrar el dialog de error
@@ -152,6 +151,8 @@ class SignInActivity : AppCompatActivity() {
                         }
 
                     }
+                } else {
+                    showIncorrectSignInDialog("Correo o contraseña incorrectos.")
                 }
             }
             override fun onFailure(p0: Call<UserAuthenticated>, p1: Throwable) {
@@ -187,22 +188,6 @@ class SignInActivity : AppCompatActivity() {
             return false
         }
         return true
-    }
-
-    private fun changePasswordVisibility(inputSelected: Boolean){
-        if(edtPassword.inputType == 129){
-            edtPassword.inputType = 1
-            // change the icon
-            ivEye.setImageResource(R.drawable.ic_closed_eye)
-        }else{
-            edtPassword.inputType = 129
-            ivEye.setImageResource(R.drawable.ic_open_eye)
-        }
-        if(inputSelected){
-            ivEye.drawable.setTint(resources.getColor(R.color.input_focused_stroke))
-        }else{
-            ivEye.drawable.setTint(resources.getColor(R.color.input_stroke))
-        }
     }
 
 }

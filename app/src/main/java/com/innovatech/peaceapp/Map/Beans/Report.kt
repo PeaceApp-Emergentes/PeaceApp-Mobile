@@ -11,9 +11,12 @@ data class Report(
     var title: String,
     var type: String,
     var imageUrl: String?,
+    var videoUrl: String?,
+    var audioUrl: String?,
     var location: String,
     val latitude: String,
     val longitude: String,
     var state: String,
-    var rejectionReason: String?
+    var rejectionReason: String?,
+    var district: String? = null
 ) : Serializable

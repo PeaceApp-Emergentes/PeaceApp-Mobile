@@ -136,7 +136,7 @@ class ListReportsActivity : AppCompatActivity() {
                             reports
                         } else {
 
-                            reports.filter { it.state == "APPROVED" }
+                            reports.filter { it.state == "APPROVED" || it.state == "ATTENDED" }
                         }
 
                     for (report in filteredReports) {
@@ -154,6 +154,8 @@ class ListReportsActivity : AppCompatActivity() {
                                 report.title,
                                 translateType(report.type),
                                 report.imageUrl,
+                                report.videoUrl,
+                                report.audioUrl,
                                 report.location,
                                 report.latitude,
                                 report.longitude,
@@ -205,6 +207,8 @@ class ListReportsActivity : AppCompatActivity() {
                                 report.title,
                                 translateType(report.type),
                                 report.imageUrl,
+                                report.videoUrl,
+                                report.audioUrl,
                                 report.location,
                                 report.latitude,
                                 report.longitude,

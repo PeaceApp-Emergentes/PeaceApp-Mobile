@@ -45,6 +45,10 @@ class ReportViewHolder(view: View) : RecyclerView.ViewHolder(view) {
                 reportState.text = "Aprobado"
                 reportState.setTextColor(itemView.resources.getColor(R.color.green))
             }
+            "ATTENDED" -> {
+                reportState.text = "Atendido"
+                reportState.setTextColor(itemView.resources.getColor(R.color.green))
+            }
             "IN_REVIEW" -> {
                 reportState.text = "En revisión"
                 reportState.setTextColor(itemView.resources.getColor(R.color.yellow))
@@ -65,11 +69,15 @@ class ReportViewHolder(view: View) : RecyclerView.ViewHolder(view) {
         } else {
             reportImg.visibility = View.VISIBLE
 
-            Picasso.get()
-                .load(reportModel.imageUrl)
-                .resize(300, 300)
-                .centerCrop()
-                .into(reportImg)
+            if (reportModel.imageUrl.isNullOrBlank()) {
+                reportImg.setImageResource(R.drawable.image_report_not_found)
+            } else {
+                Picasso.get()
+                    .load(reportModel.imageUrl)
+                    .resize(300, 300)
+                    .centerCrop()
+                    .into(reportImg)
+            }
         }
     }
 }

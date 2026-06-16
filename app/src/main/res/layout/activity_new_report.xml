@@ -179,6 +179,32 @@
             </LinearLayout>
 
             <LinearLayout
+                android:orientation="horizontal"
+                android:layout_width="match_parent"
+                android:layout_marginTop="30dp"
+                android:gravity="center_vertical"
+                android:layout_height="wrap_content">
+
+                <TextView
+                    android:layout_marginEnd="20dp"
+                    android:layout_width="100dp"
+                    android:layout_height="wrap_content"
+                    android:text="¿Es emergencia?"
+                    android:textSize="14sp"
+                    android:fontFamily="@font/poppins_bold"
+                    android:padding="5dp"
+                    android:textColor="@color/black"/>
+
+                <Switch
+                    android:id="@+id/switchEmergency"
+                    android:layout_marginStart="30dp"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:textColor="@color/black"/>
+
+            </LinearLayout>
+
+            <LinearLayout
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:orientation="vertical">
@@ -216,6 +242,16 @@
 
 
                 </LinearLayout>
+
+                <TextView
+                    android:id="@+id/txtEvidenceSummary"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="8dp"
+                    android:fontFamily="@font/poppins_regular"
+                    android:text="Sin evidencias adjuntas"
+                    android:textColor="@color/input_stroke"
+                    android:textSize="12sp" />
 
             </LinearLayout>
 

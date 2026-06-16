@@ -121,6 +121,47 @@
                     android:src="@drawable/image_report_not_found"
                     android:scaleType="fitXY"/>
 
+                <LinearLayout
+                    android:id="@+id/containerMultimedia"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:orientation="vertical"
+                    android:paddingHorizontal="20dp"
+                    android:paddingTop="16dp"
+                    android:paddingBottom="4dp"
+                    android:visibility="gone">
+
+                    <TextView
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:fontFamily="@font/poppins_bold"
+                        android:text="Evidencia multimedia"
+                        android:textColor="@color/black"
+                        android:textSize="16sp" />
+
+                    <Button
+                        android:id="@+id/btnVerVideo"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:layout_marginTop="8dp"
+                        android:backgroundTint="@color/peaceapp_pink"
+                        android:fontFamily="@font/poppins_medium"
+                        android:text="Ver video"
+                        android:textColor="@color/white"
+                        android:visibility="gone" />
+
+                    <Button
+                        android:id="@+id/btnEscucharAudio"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:layout_marginTop="8dp"
+                        android:backgroundTint="@color/peaceapp_pink"
+                        android:fontFamily="@font/poppins_medium"
+                        android:text="Escuchar audio"
+                        android:textColor="@color/white"
+                        android:visibility="gone" />
+                </LinearLayout>
+
                 <!-- ✔ MOTIVO DE RECHAZO -->
                 <TextView
                     android:id="@+id/txtRejectionReason"

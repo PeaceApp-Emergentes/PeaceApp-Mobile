@@ -347,4 +347,34 @@
 
     </androidx.constraintlayout.widget.ConstraintLayout>
 
+    <androidx.constraintlayout.widget.ConstraintLayout
+        android:id="@+id/btnSosEmergency"
+        android:layout_width="72dp"
+        android:layout_height="72dp"
+        android:layout_marginEnd="10dp"
+        android:layout_marginBottom="-56dp"
+        android:background="@drawable/circular_button"
+        android:backgroundTint="#D32F2F"
+        android:clickable="true"
+        android:elevation="8dp"
+        android:focusable="true"
+        app:layout_constraintBottom_toTopOf="@+id/container_search"
+        app:layout_constraintEnd_toEndOf="parent">
+
+        <TextView
+            android:id="@+id/txtSosEmergency"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:fontFamily="@font/poppins_bold"
+            android:gravity="center"
+            android:text="SOS"
+            android:textColor="@color/white"
+            android:textSize="22sp"
+            app:layout_constraintBottom_toBottomOf="@id/btnSosEmergency"
+            app:layout_constraintEnd_toEndOf="@id/btnSosEmergency"
+            app:layout_constraintStart_toStartOf="@id/btnSosEmergency"
+            app:layout_constraintTop_toTopOf="@id/btnSosEmergency" />
+
+    </androidx.constraintlayout.widget.ConstraintLayout>
+
 </androidx.constraintlayout.widget.ConstraintLayout>

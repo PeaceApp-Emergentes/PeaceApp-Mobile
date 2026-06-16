@@ -51,9 +51,12 @@ class AlertActivity : AppCompatActivity() {
         // Make the API call to fetch alerts for the specific userId
         api.getAlertsByUser(userId).enqueue(object : Callback<List<Alert>> {
             override fun onResponse(call: Call<List<Alert>>, response: Response<List<Alert>>) {
+                Log.i("AlertActivity", "getAlertsByUser($userId) -> HTTP ${response.code()}")
                 val alerts = response.body()
                 if (alerts != null && alerts.isNotEmpty()) {
                     setupRecyclerView(alerts)
+                } else {
+                    Log.i("AlertActivity", "Sin alertas para el usuario $userId (code ${response.code()})")
                 }
             }
 

@@ -5,6 +5,7 @@ import Beans.LocationSchema
 import ReportSchema
 import com.innovatech.peaceapp.Alert.Beans.Alert
 import com.innovatech.peaceapp.Alert.Beans.AlertSchema
+import com.innovatech.peaceapp.Map.Beans.MunicipalityProfile
 import com.innovatech.peaceapp.Map.Beans.Report
 import retrofit2.Call
 import retrofit2.http.Body
@@ -37,6 +38,9 @@ interface PlaceHolder {
 
     @POST("api/v1/reports")
     fun postReport(@Body report: ReportSchema): Call<Report>
+
+    @GET("api/v1/profiles/municipalities/district/{district}")
+    fun getMunicipalityByDistrict(@Path("district") district: String): Call<MunicipalityProfile>
 
     @DELETE("api/v1/reports/{id}")
     fun deleteReport(@Path("id") id: Int): Call<Void>

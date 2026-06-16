@@ -121,7 +121,9 @@ class SignUpActivity : AppCompatActivity() {
                         val sharedPref = getSharedPreferences("GlobalPrefs", MODE_PRIVATE)
                         with(sharedPref.edit()) {
                             putInt("userId", user.id)
-                            putString("userRole",user.role)
+                            putString("userRole", user.role)
+                            putString("authToken", user.token)
+                            putString("userEmail", user.username)
                             apply()
                         }
 
@@ -131,6 +133,8 @@ class SignUpActivity : AppCompatActivity() {
 
                         saveUser(user.id, user.token)
                     }
+                } else {
+                    showIncorrectSignUpDialog("Error al iniciar sesión automáticamente.")
                 }
             }
 
@@ -179,9 +183,12 @@ class SignUpActivity : AppCompatActivity() {
     }
 
     private fun navigateToMapActivity(token: String){
-        val intent = Intent(this, MapActivity::class.java)
+        val intent = Intent(this, MapActivity::class.java).apply {
+            flags = Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_CLEAR_TASK
+        }
         intent.putExtra("token", token)
         startActivity(intent)
+        finish()
     }
 
     private fun showCorrectSignUpDialog(token: String){
@@ -219,10 +226,10 @@ class SignUpActivity : AppCompatActivity() {
             return false
         }
 
-        // Phone number must be exactly 9 digits
-        val phoneRegex = Regex("^\\d{9}\$")
+        // Mobile app users register with a Peruvian cellphone number.
+        val phoneRegex = Regex("^9\\d{8}\$")
         if (!phoneRegex.matches(phone)) {
-            showIncorrectSignUpDialog("Phone number must contain exactly 9 digits.")
+            showIncorrectSignUpDialog("Phone number must contain 9 digits and start with 9.")
             return false
         }
 

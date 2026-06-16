@@ -212,8 +212,19 @@ class MainProfileActivity : AppCompatActivity() {
     }
 
     private fun logout() {
-        val intent = Intent(this, InitialActivity::class.java)
+        val sharedPref = getSharedPreferences("GlobalPrefs", MODE_PRIVATE)
+        with(sharedPref.edit()) {
+            clear()
+            apply()
+        }
+        GlobalToken.setToken("")
+        GlobalUserEmail.setEmail("")
+
+        val intent = Intent(this, InitialActivity::class.java).apply {
+            flags = Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_CLEAR_TASK
+        }
         startActivity(intent)
+        finish()
     }
 
     private fun deleteUser() {
@@ -223,12 +234,21 @@ class MainProfileActivity : AppCompatActivity() {
         service.deleteUser(user.userId.toLong())
 
         navigateToInitialActivity()
-
-
     }
 
     private fun navigateToInitialActivity() {
-        val intent = Intent(this, InitialActivity::class.java)
+        val sharedPref = getSharedPreferences("GlobalPrefs", MODE_PRIVATE)
+        with(sharedPref.edit()) {
+            clear()
+            apply()
+        }
+        GlobalToken.setToken("")
+        GlobalUserEmail.setEmail("")
+
+        val intent = Intent(this, InitialActivity::class.java).apply {
+            flags = Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_CLEAR_TASK
+        }
         startActivity(intent)
+        finish()
     }
 }
