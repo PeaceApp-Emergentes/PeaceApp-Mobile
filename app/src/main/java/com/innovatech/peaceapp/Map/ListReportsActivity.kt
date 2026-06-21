@@ -15,12 +15,12 @@ import androidx.core.view.WindowInsetsCompat
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import com.google.android.material.bottomnavigation.BottomNavigationView
+import com.innovatech.peaceapp.AI.ChatbotActivity
 import com.innovatech.peaceapp.Map.Adapters.AdapterReport
 import com.innovatech.peaceapp.Map.Beans.Report
 import com.innovatech.peaceapp.Map.Models.RetrofitClient
 import com.innovatech.peaceapp.R
 import com.innovatech.peaceapp.ShareLocation.ContactsListActivity
-import com.mapbox.geojson.Point
 import retrofit2.Call
 import retrofit2.Callback
 import retrofit2.Response
@@ -99,6 +99,11 @@ class ListReportsActivity : AppCompatActivity() {
                 R.id.nav_report -> {
                     val intent = Intent(this, ListReportsActivity::class.java)
                     intent.putExtra("token", token)
+                    startActivity(intent)
+                    true
+                }
+                R.id.nav_ai -> {
+                    val intent = Intent(this, ChatbotActivity::class.java)
                     startActivity(intent)
                     true
                 }

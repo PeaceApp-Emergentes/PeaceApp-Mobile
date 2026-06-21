@@ -16,6 +16,7 @@ import androidx.core.view.ViewCompat
 import androidx.core.view.WindowInsetsCompat
 import com.google.android.material.bottomnavigation.BottomNavigationView
 import com.google.android.material.button.MaterialButton
+import com.innovatech.peaceapp.AI.ChatbotActivity
 import com.innovatech.peaceapp.GlobalToken
 import com.innovatech.peaceapp.GlobalUserEmail
 import com.innovatech.peaceapp.Map.ListReportsActivity
@@ -101,6 +102,11 @@ class MainProfileActivity : AppCompatActivity() {
                 R.id.nav_report -> {
                     val intent = Intent(this, ListReportsActivity::class.java)
                     intent.putExtra("token", token)
+                    startActivity(intent)
+                    true
+                }
+                R.id.nav_ai -> {
+                    val intent = Intent(this, ChatbotActivity::class.java)
                     startActivity(intent)
                     true
                 }

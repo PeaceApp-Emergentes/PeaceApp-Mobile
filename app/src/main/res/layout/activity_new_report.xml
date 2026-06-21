@@ -164,18 +164,128 @@
                     android:padding="5dp"
                     android:textColor="@color/black"/>
 
-                <EditText
-                    android:layout_marginStart="30dp"
+                <LinearLayout
                     android:layout_width="fill_parent"
-                    android:layout_height="90dp"
-                    android:id="@+id/edtDetail"
-                    android:inputType="textMultiLine"
-                    android:textSize="13sp"
-                    android:background="@drawable/new_report_input"
-                    android:textColor="@color/black"
-                    android:gravity="top"
-                    />
+                    android:layout_height="wrap_content"
+                    android:layout_marginStart="30dp"
+                    android:orientation="vertical">
 
+                    <EditText
+                        android:id="@+id/edtDetail"
+                        android:layout_width="match_parent"
+                        android:layout_height="90dp"
+                        android:background="@drawable/new_report_input"
+                        android:gravity="top"
+                        android:inputType="textMultiLine"
+                        android:textColor="@color/black"
+                        android:textSize="13sp" />
+
+                    <Button
+                        android:id="@+id/btnSuggestAi"
+                        android:layout_width="wrap_content"
+                        android:layout_height="36dp"
+                        android:layout_gravity="end"
+                        android:layout_marginTop="8dp"
+                        android:backgroundTint="@color/peaceapp_blue"
+                        android:fontFamily="@font/poppins_medium"
+                        android:minHeight="0dp"
+                        android:paddingStart="14dp"
+                        android:paddingEnd="14dp"
+                        android:text="Sugerir con IA"
+                        android:textColor="@color/white"
+                        android:textSize="11sp" />
+
+                    <TextView
+                        android:id="@+id/txtAiStatus"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:layout_marginTop="6dp"
+                        android:fontFamily="@font/poppins_regular"
+                        android:textColor="@color/peaceapp_blue"
+                        android:textSize="12sp"
+                        android:visibility="gone" />
+                </LinearLayout>
+
+            </LinearLayout>
+
+            <LinearLayout
+                android:id="@+id/aiSuggestionCard"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="16dp"
+                android:background="@drawable/ai_suggestion_card"
+                android:orientation="vertical"
+                android:visibility="gone">
+
+                <TextView
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:fontFamily="@font/poppins_bold"
+                    android:text="Sugerencia IA"
+                    android:textColor="@color/peaceapp_blue"
+                    android:textSize="14sp" />
+
+                <TextView
+                    android:id="@+id/txtAiIncidentType"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="8dp"
+                    android:fontFamily="@font/poppins_regular"
+                    android:textColor="@color/black"
+                    android:textSize="12sp" />
+
+                <TextView
+                    android:id="@+id/txtAiSeverity"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="4dp"
+                    android:fontFamily="@font/poppins_regular"
+                    android:textColor="@color/black"
+                    android:textSize="12sp" />
+
+                <TextView
+                    android:id="@+id/txtAiSummary"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="8dp"
+                    android:fontFamily="@font/poppins_regular"
+                    android:textColor="@color/black"
+                    android:textSize="12sp" />
+
+                <TextView
+                    android:id="@+id/txtAiActions"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="8dp"
+                    android:fontFamily="@font/poppins_regular"
+                    android:textColor="@color/black"
+                    android:textSize="12sp" />
+
+                <TextView
+                    android:id="@+id/txtAiMock"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="8dp"
+                    android:fontFamily="@font/poppins_semibold"
+                    android:text="Respuesta simulada"
+                    android:textColor="@color/peaceapp_blue"
+                    android:textSize="11sp"
+                    android:visibility="gone" />
+
+                <Button
+                    android:id="@+id/btnApplyAiSuggestion"
+                    android:layout_width="wrap_content"
+                    android:layout_height="36dp"
+                    android:layout_gravity="end"
+                    android:layout_marginTop="10dp"
+                    android:backgroundTint="@color/peaceapp_pink"
+                    android:fontFamily="@font/poppins_medium"
+                    android:minHeight="0dp"
+                    android:paddingStart="14dp"
+                    android:paddingEnd="14dp"
+                    android:text="Aplicar sugerencia"
+                    android:textColor="@color/white"
+                    android:textSize="11sp" />
             </LinearLayout>
 
             <LinearLayout
@@ -301,18 +411,11 @@
 
 
 
-    <com.google.android.material.bottomnavigation.BottomNavigationView
+    <include
         android:id="@+id/bottom_navigation"
+        layout="@layout/component_bottom_navigation"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:background="@color/white"
-        app:menu="@drawable/navigation_menu"
-        app:itemIconTint="@drawable/nav_item_color"
-        app:itemTextColor="@drawable/nav_item_color"
-        app:itemBackground="@drawable/nav_item_background"
-        android:backgroundTint="@color/white"
-        android:backgroundTintMode="src_over"
-        app:itemRippleColor="@color/white"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintStart_toStartOf="parent"/>
 

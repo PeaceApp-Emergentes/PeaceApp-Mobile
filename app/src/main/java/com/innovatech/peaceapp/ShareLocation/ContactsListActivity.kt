@@ -29,6 +29,7 @@ import androidx.lifecycle.lifecycleScope
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import com.google.android.material.bottomnavigation.BottomNavigationView
+import com.innovatech.peaceapp.AI.ChatbotActivity
 import com.innovatech.peaceapp.DB.AppDatabase
 import com.innovatech.peaceapp.GlobalToken
 import com.innovatech.peaceapp.Map.ListReportsActivity
@@ -288,6 +289,11 @@ class ContactsListActivity : AppCompatActivity() {
                 R.id.nav_report -> {
                     val intent = Intent(this, ListReportsActivity::class.java)
                     intent.putExtra("token", token)
+                    startActivity(intent)
+                    true
+                }
+                R.id.nav_ai -> {
+                    val intent = Intent(this, ChatbotActivity::class.java)
                     startActivity(intent)
                     true
                 }

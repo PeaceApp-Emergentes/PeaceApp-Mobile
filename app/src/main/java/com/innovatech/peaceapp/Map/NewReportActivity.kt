@@ -21,9 +21,13 @@ import androidx.appcompat.app.AppCompatActivity
 import androidx.core.app.ActivityCompat
 import androidx.core.content.ContextCompat
 import androidx.lifecycle.lifecycleScope
+import com.innovatech.peaceapp.AI.Beans.ClassifyIncidentRequest
+import com.innovatech.peaceapp.AI.Beans.ClassifyIncidentResponse
 import com.cloudinary.Cloudinary
 import com.cloudinary.utils.ObjectUtils
 import com.google.android.material.bottomnavigation.BottomNavigationView
+import com.innovatech.peaceapp.AI.ChatbotActivity
+import com.innovatech.peaceapp.AI.Models.RetrofitClient as AiRetrofitClient
 import com.innovatech.peaceapp.DB.AppDatabase
 import com.innovatech.peaceapp.DB.Entities.LocationModel
 import com.innovatech.peaceapp.Map.Beans.Report
@@ -52,6 +56,15 @@ class NewReportActivity : AppCompatActivity() {
     private lateinit var txtEvidenceSummary: TextView
     private lateinit var btnSave: Button
     private lateinit var btnCancel: Button
+    private lateinit var btnSuggestAi: Button
+    private lateinit var txtAiStatus: TextView
+    private lateinit var aiSuggestionCard: LinearLayout
+    private lateinit var txtAiIncidentType: TextView
+    private lateinit var txtAiSeverity: TextView
+    private lateinit var txtAiSummary: TextView
+    private lateinit var txtAiActions: TextView
+    private lateinit var txtAiMock: TextView
+    private lateinit var btnApplyAiSuggestion: Button
     private lateinit var progressBar: ProgressBar
     private lateinit var viewOverlay: View
     private lateinit var cloudinary: Cloudinary
@@ -60,6 +73,7 @@ class NewReportActivity : AppCompatActivity() {
     private var videoUri: Uri? = null
     private var audioUri: Uri? = null
     private var userId: Int = 0
+    private var aiSuggestedReportType: String? = null
 
     private val REQUEST_CODE_PERMISSIONS = 101
     private val REQUEST_CODE_IMAGE_CAPTURE = 102
@@ -86,6 +100,15 @@ class NewReportActivity : AppCompatActivity() {
         imgEvidence = findViewById(R.id.imgEvidence)
         txtEvidenceSummary = findViewById(R.id.txtEvidenceSummary)
         btnSave = findViewById(R.id.btnSave)
+        btnSuggestAi = findViewById(R.id.btnSuggestAi)
+        txtAiStatus = findViewById(R.id.txtAiStatus)
+        aiSuggestionCard = findViewById(R.id.aiSuggestionCard)
+        txtAiIncidentType = findViewById(R.id.txtAiIncidentType)
+        txtAiSeverity = findViewById(R.id.txtAiSeverity)
+        txtAiSummary = findViewById(R.id.txtAiSummary)
+        txtAiActions = findViewById(R.id.txtAiActions)
+        txtAiMock = findViewById(R.id.txtAiMock)
+        btnApplyAiSuggestion = findViewById(R.id.btnApplyAiSuggestion)
         switchEmergency = findViewById(R.id.switchEmergency)
         btnCancel = findViewById(R.id.btnCancel)
         progressBar = findViewById(R.id.progressBar)
@@ -107,6 +130,20 @@ class NewReportActivity : AppCompatActivity() {
         saveMultimediaEvidence()
         navigationMenu()
 
+        btnSuggestAi.setOnClickListener {
+            suggestIncidentWithAi()
+        }
+
+        btnApplyAiSuggestion.setOnClickListener {
+            val suggestedType = aiSuggestedReportType
+            if (suggestedType.isNullOrBlank()) {
+                Toast.makeText(this, "No hay un tipo sugerido para aplicar", Toast.LENGTH_SHORT).show()
+            } else {
+                txtTypeReport.text = suggestedType
+                Toast.makeText(this, "Tipo actualizado a $suggestedType", Toast.LENGTH_SHORT).show()
+            }
+        }
+
         btnCancel.setOnClickListener {
             val intent = Intent(this, ListReportsActivity::class.java)
             intent.putExtra("token", token)
@@ -119,10 +156,11 @@ class NewReportActivity : AppCompatActivity() {
 
             val title = edtTitle.text.toString()
             val detail = edtDetail.text.toString()
+            val selectedTypeReport = txtTypeReport.text.toString()
 
             if (validateFields(title, detail)) {
                 lifecycleScope.launch {
-                    saveReport(title, detail, latitude, longitude, typeReport, currentLocation)
+                    saveReport(title, detail, latitude, longitude, selectedTypeReport, currentLocation)
                     progressBar.visibility = View.GONE
                     viewOverlay.visibility = View.GONE
                 }
@@ -147,11 +185,117 @@ class NewReportActivity : AppCompatActivity() {
     private fun mapReportType(type: String): String {
         return when (type.lowercase()) {
             "robo" -> "ROBBERY"
+            "robbery" -> "ROBBERY"
             "acoso" -> "HARASSMENT"
+            "harassment" -> "HARASSMENT"
             "accidente" -> "ACCIDENT"
+            "accident" -> "ACCIDENT"
             "zona oscura" -> "DARK_AREA"
+            "falta de iluminación" -> "DARK_AREA"
+            "falta de iluminacion" -> "DARK_AREA"
+            "oscuridad" -> "DARK_AREA"
+            "darkness" -> "DARK_AREA"
+            "dark_area" -> "DARK_AREA"
+            "dark area" -> "DARK_AREA"
+            "otro" -> "OTHER"
+            "general" -> "OTHER"
+            "general_risk" -> "OTHER"
+            "general risk" -> "OTHER"
+            "other" -> "OTHER"
             else -> "OTHER"
         }
+    }
+
+    private fun suggestIncidentWithAi() {
+        val description = edtDetail.text.toString().trim()
+        if (description.isEmpty()) {
+            Toast.makeText(this, "Escribe el detalle del reporte para usar IA", Toast.LENGTH_SHORT).show()
+            return
+        }
+
+        setAiLoading(true)
+        aiSuggestionCard.visibility = View.GONE
+        txtAiStatus.text = "Analizando el detalle con IA..."
+        txtAiStatus.visibility = View.VISIBLE
+
+        AiRetrofitClient.placeHolder.classifyIncident(
+            ClassifyIncidentRequest(description = description)
+        ).enqueue(object : Callback<ClassifyIncidentResponse> {
+            override fun onResponse(
+                call: Call<ClassifyIncidentResponse>,
+                response: Response<ClassifyIncidentResponse>
+            ) {
+                setAiLoading(false)
+
+                if (!response.isSuccessful) {
+                    showAiError("No se pudo obtener una sugerencia. Intenta nuevamente.")
+                    return
+                }
+
+                val body = response.body()
+                if (body == null) {
+                    showAiError("El servicio de IA no devolvió información.")
+                    return
+                }
+
+                showAiSuggestion(body)
+            }
+
+            override fun onFailure(call: Call<ClassifyIncidentResponse>, t: Throwable) {
+                setAiLoading(false)
+                showAiError("No se pudo conectar con IA. Verifica que el backend esté levantado.")
+            }
+        })
+    }
+
+    private fun showAiSuggestion(response: ClassifyIncidentResponse) {
+        val incidentType = response.incidentType.orEmpty()
+        val severity = response.severity.orEmpty()
+        val summary = response.summary.orEmpty()
+        aiSuggestedReportType = mapAiIncidentTypeToReportType(incidentType)
+
+        txtAiIncidentType.text = "Tipo sugerido: ${aiSuggestedReportType ?: incidentType.ifBlank { "No identificado" }}"
+        txtAiSeverity.text = "Severidad: ${severity.ifBlank { "No indicada" }}"
+        txtAiSummary.text = "Resumen: ${summary.ifBlank { "No disponible" }}"
+
+        if (response.recommendedActions.isNullOrEmpty()) {
+            txtAiActions.visibility = View.GONE
+        } else {
+            txtAiActions.visibility = View.VISIBLE
+            txtAiActions.text = buildString {
+                append("Acciones recomendadas:")
+                response.recommendedActions.forEach { action ->
+                    append("\n- ").append(action)
+                }
+            }
+        }
+
+        txtAiMock.visibility = if (response.mock) View.VISIBLE else View.GONE
+        btnApplyAiSuggestion.isEnabled = !aiSuggestedReportType.isNullOrBlank()
+        aiSuggestionCard.visibility = View.VISIBLE
+        txtAiStatus.visibility = View.GONE
+    }
+
+    private fun mapAiIncidentTypeToReportType(type: String?): String? {
+        return when (type?.trim()?.lowercase()) {
+            "robbery", "robo" -> "Robo"
+            "accident", "accidente" -> "Accidente"
+            "darkness", "oscuridad", "dark_area", "dark area", "zona oscura", "falta de iluminación", "falta de iluminacion" -> "Falta de iluminación"
+            "harassment", "acoso" -> "Acoso"
+            "general", "general_risk", "general risk", "other", "otro" -> "Otro"
+            else -> null
+        }
+    }
+
+    private fun setAiLoading(isLoading: Boolean) {
+        btnSuggestAi.isEnabled = !isLoading
+        btnSuggestAi.text = if (isLoading) "Analizando..." else "Sugerir con IA"
+    }
+
+    private fun showAiError(message: String) {
+        txtAiStatus.text = message
+        txtAiStatus.visibility = View.VISIBLE
+        Toast.makeText(this, message, Toast.LENGTH_SHORT).show()
     }
     private suspend fun saveReport(
         title: String,
@@ -444,6 +588,10 @@ class NewReportActivity : AppCompatActivity() {
                 }
                 R.id.nav_report -> {
                     startActivity(Intent(this, ListReportsActivity::class.java).putExtra("token", token))
+                    true
+                }
+                R.id.nav_ai -> {
+                    startActivity(Intent(this, ChatbotActivity::class.java))
                     true
                 }
                 R.id.nav_shared_location -> {

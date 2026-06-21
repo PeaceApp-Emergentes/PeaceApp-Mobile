@@ -34,6 +34,7 @@ import com.cloudinary.Cloudinary
 import com.cloudinary.utils.ObjectUtils
 import com.google.android.material.bottomnavigation.BottomNavigationView
 import com.google.android.material.transition.MaterialContainerTransform
+import com.innovatech.peaceapp.AI.ChatbotActivity
 import com.innovatech.peaceapp.GlobalToken
 import com.innovatech.peaceapp.GlobalUserEmail
 import com.innovatech.peaceapp.Map.ListReportsActivity
@@ -151,6 +152,11 @@ class EditProfileActivity : AppCompatActivity() {
                 R.id.nav_report -> {
                     val intent = Intent(this, ListReportsActivity::class.java)
                     intent.putExtra("token", token)
+                    startActivity(intent)
+                    true
+                }
+                R.id.nav_ai -> {
+                    val intent = Intent(this, ChatbotActivity::class.java)
                     startActivity(intent)
                     true
                 }
