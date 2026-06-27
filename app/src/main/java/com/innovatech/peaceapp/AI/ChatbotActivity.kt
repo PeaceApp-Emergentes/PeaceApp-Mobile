@@ -31,6 +31,9 @@ import retrofit2.Response
 
 class ChatbotActivity : AppCompatActivity() {
 
+    private val SUPPORT_WHATSAPP = "51987654321"
+    private val SUPPORT_EMAIL = "soporte@peaceapp.pe"
+
     private lateinit var messagesContainer: LinearLayout
     private lateinit var messageInput: EditText
     private lateinit var sendButton: Button
@@ -54,6 +57,16 @@ class ChatbotActivity : AppCompatActivity() {
 
         findViewById<View>(R.id.backButton).setOnClickListener {
             finish()
+        }
+
+        findViewById<View>(R.id.supportButton).setOnClickListener {
+            val msg = "Hola, necesito ayuda con PeaceApp."
+            val url = "https://wa.me/$SUPPORT_WHATSAPP?text=" + android.net.Uri.encode(msg)
+            try {
+                startActivity(android.content.Intent(android.content.Intent.ACTION_VIEW, android.net.Uri.parse(url)))
+            } catch (e: Exception) {
+                Toast.makeText(this, "Soporte PeaceApp: WhatsApp +$SUPPORT_WHATSAPP - $SUPPORT_EMAIL", Toast.LENGTH_LONG).show()
+            }
         }
 
         navigationMenu()

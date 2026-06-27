@@ -35,6 +35,15 @@
         android:textColor="@color/nav_item_unselected"
         android:textSize="14sp" />
 
+    <Button
+        android:id="@+id/supportButton"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="8dp"
+        android:text="Hablar con soporte"
+        android:textColor="@color/white"
+        android:backgroundTint="@color/peaceapp_blue" />
+
     <ScrollView
         android:id="@+id/chatScrollView"
         android:layout_width="match_parent"

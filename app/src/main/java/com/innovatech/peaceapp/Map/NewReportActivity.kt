@@ -23,6 +23,8 @@ import androidx.core.content.ContextCompat
 import androidx.lifecycle.lifecycleScope
 import com.innovatech.peaceapp.AI.Beans.ClassifyIncidentRequest
 import com.innovatech.peaceapp.AI.Beans.ClassifyIncidentResponse
+import com.innovatech.peaceapp.AI.Beans.AnalyzeEvidenceRequest
+import com.innovatech.peaceapp.AI.Beans.AnalyzeEvidenceResponse
 import com.cloudinary.Cloudinary
 import com.cloudinary.utils.ObjectUtils
 import com.google.android.material.bottomnavigation.BottomNavigationView
@@ -74,6 +76,8 @@ class NewReportActivity : AppCompatActivity() {
     private var audioUri: Uri? = null
     private var userId: Int = 0
     private var aiSuggestedReportType: String? = null
+    private var aiSuggestedTitle: String? = null
+    private var aiSuggestedDescription: String? = null
 
     private val REQUEST_CODE_PERMISSIONS = 101
     private val REQUEST_CODE_IMAGE_CAPTURE = 102
@@ -137,10 +141,12 @@ class NewReportActivity : AppCompatActivity() {
         btnApplyAiSuggestion.setOnClickListener {
             val suggestedType = aiSuggestedReportType
             if (suggestedType.isNullOrBlank()) {
-                Toast.makeText(this, "No hay un tipo sugerido para aplicar", Toast.LENGTH_SHORT).show()
+                Toast.makeText(this, "No hay sugerencia para aplicar", Toast.LENGTH_SHORT).show()
             } else {
                 txtTypeReport.text = suggestedType
-                Toast.makeText(this, "Tipo actualizado a $suggestedType", Toast.LENGTH_SHORT).show()
+                aiSuggestedTitle?.let { edtTitle.setText(it) }
+                aiSuggestedDescription?.let { edtDetail.setText(it) }
+                Toast.makeText(this, "Sugerencia aplicada", Toast.LENGTH_SHORT).show()
             }
         }
 
@@ -248,15 +254,75 @@ class NewReportActivity : AppCompatActivity() {
         })
     }
 
+    private fun analyzeEvidenceImage() {
+        if (imgBitmap == null) return
+        Toast.makeText(this, "Analizando imagen con IA...", Toast.LENGTH_SHORT).show()
+        lifecycleScope.launch {
+            val url = uploadImage()
+            if (url.isNullOrBlank()) {
+                Toast.makeText(this@NewReportActivity, "No se pudo subir la imagen para analizar.", Toast.LENGTH_SHORT).show()
+                return@launch
+            }
+            AiRetrofitClient.placeHolder.analyzeEvidence(
+                AnalyzeEvidenceRequest(
+                    evidenceUrl = url,
+                    evidenceType = "IMAGE",
+                    description = edtDetail.text.toString().trim()
+                )
+            ).enqueue(object : Callback<AnalyzeEvidenceResponse> {
+                override fun onResponse(
+                    call: Call<AnalyzeEvidenceResponse>,
+                    response: Response<AnalyzeEvidenceResponse>
+                ) {
+                    if (!response.isSuccessful) {
+                        Toast.makeText(this@NewReportActivity, "No se pudo analizar la imagen (servicio IA: ${response.code()}).", Toast.LENGTH_LONG).show()
+                        return
+                    }
+                    val body = response.body() ?: return
+                    if (body.validImage == false) {
+                        Toast.makeText(
+                            this@NewReportActivity,
+                            "La imagen no parece evidencia de un reporte válido.",
+                            Toast.LENGTH_LONG
+                        ).show()
+                    } else if (!body.detectedType.isNullOrBlank() && body.detectedType != "NONE") {
+                        val mapped = mapAiIncidentTypeToReportType(body.detectedType)
+                        Toast.makeText(
+                            this@NewReportActivity,
+                            "La imagen sugiere: ${mapped ?: body.detectedType}",
+                            Toast.LENGTH_LONG
+                        ).show()
+                    }
+                }
+
+                override fun onFailure(call: Call<AnalyzeEvidenceResponse>, t: Throwable) {
+                    Log.e("AI", "Error analizando evidencia: ${t.message}")
+                    Toast.makeText(this@NewReportActivity, "No se pudo conectar con la IA para analizar la imagen.", Toast.LENGTH_LONG).show()
+                }
+            })
+        }
+    }
+
     private fun showAiSuggestion(response: ClassifyIncidentResponse) {
+        if (response.valid == false) {
+            aiSuggestedReportType = null
+            showAiError("La descripción no parece un incidente válido. Describe qué pasó (robo, accidente, acoso, etc.).")
+            return
+        }
         val incidentType = response.incidentType.orEmpty()
         val severity = response.severity.orEmpty()
         val summary = response.summary.orEmpty()
         aiSuggestedReportType = mapAiIncidentTypeToReportType(incidentType)
+        aiSuggestedTitle = response.suggestedTitle?.trim()?.ifBlank { null }
+        aiSuggestedDescription = response.suggestedDescription?.trim()?.ifBlank { null }
 
         txtAiIncidentType.text = "Tipo sugerido: ${aiSuggestedReportType ?: incidentType.ifBlank { "No identificado" }}"
         txtAiSeverity.text = "Severidad: ${severity.ifBlank { "No indicada" }}"
-        txtAiSummary.text = "Resumen: ${summary.ifBlank { "No disponible" }}"
+        txtAiSummary.text = buildString {
+            append("Resumen: ${summary.ifBlank { "No disponible" }}")
+            aiSuggestedTitle?.let { append("\n\nTítulo sugerido: ").append(it) }
+            aiSuggestedDescription?.let { append("\nDescripción sugerida: ").append(it) }
+        }
 
         if (response.recommendedActions.isNullOrEmpty()) {
             txtAiActions.visibility = View.GONE
@@ -480,12 +546,14 @@ class NewReportActivity : AppCompatActivity() {
         imgEvidence.setImageBitmap(bitmap)
         imgBitmap = bitmap
         updateEvidenceSummary()
+        analyzeEvidenceImage()
     }
 
     private fun showImgPreviewFromBitmap(bitmap: Bitmap) {
         imgEvidence.setImageBitmap(bitmap)
         imgBitmap = bitmap
         updateEvidenceSummary()
+        analyzeEvidenceImage()
     }
 
     private suspend fun uploadImage(): String? {

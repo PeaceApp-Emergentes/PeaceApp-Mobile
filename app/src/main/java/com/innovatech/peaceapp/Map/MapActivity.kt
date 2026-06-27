@@ -34,6 +34,7 @@ import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import com.google.android.material.bottomnavigation.BottomNavigationView
 import com.innovatech.peaceapp.Alert.AlertActivity
+import com.innovatech.peaceapp.AI.ChatbotActivity
 import com.innovatech.peaceapp.Alert.Beans.Alert
 import com.innovatech.peaceapp.Alert.Beans.AlertSchema
 import com.innovatech.peaceapp.DB.AppDatabase
@@ -264,7 +265,12 @@ class MapActivity : AppCompatActivity() {
             startActivity(intent)
         }
         btnSosEmergency.setOnClickListener {
-            sendSosEmergency()
+            AlertDialog.Builder(this)
+                .setTitle("Enviar alerta de emergencia")
+                .setMessage("¿Seguro que quieres enviar una alerta SOS? Se notificará a la municipalidad de tu zona.")
+                .setPositiveButton("Enviar") { _, _ -> sendSosEmergency() }
+                .setNegativeButton("Cancelar", null)
+                .show()
         }
 
         loadUserPhoto()
@@ -464,6 +470,12 @@ class MapActivity : AppCompatActivity() {
                 }
                 R.id.nav_report -> {
                     val intent = Intent(this, ListReportsActivity::class.java)
+                    intent.putExtra("token", token)
+                    startActivity(intent)
+                    true
+                }
+                R.id.nav_ai -> {
+                    val intent = Intent(this, ChatbotActivity::class.java)
                     intent.putExtra("token", token)
                     startActivity(intent)
                     true
@@ -704,8 +716,13 @@ class MapActivity : AppCompatActivity() {
                 if (response.isSuccessful && createdReport != null) {
                     fetchMunicipalityForSos(createdReport)
                 } else {
-                    Log.e("SOS", "Error ${response.code()}: ${response.message()}")
-                    Toast.makeText(this@MapActivity, "No se pudo enviar la alerta SOS", Toast.LENGTH_LONG).show()
+                    val backendMsg = try { response.errorBody()?.string() } catch (e: Exception) { null }
+                    Log.e("SOS", "Error ${response.code()}: ${response.message()} - $backendMsg")
+                    val msg = if (!backendMsg.isNullOrBlank() && response.code() == 400)
+                        backendMsg
+                    else
+                        "No se pudo enviar la alerta SOS"
+                    Toast.makeText(this@MapActivity, msg, Toast.LENGTH_LONG).show()
                 }
             }
 
@@ -718,8 +735,9 @@ class MapActivity : AppCompatActivity() {
 
     private fun fetchMunicipalityForSos(report: Report) {
         val district = report.district
-        if (district.isNullOrBlank()) {
-            showSosConfirmation(null, "Alerta SOS enviada. No se encontró distrito para llamada rápida.")
+        // La municipalidad debe tener cobertura real en tu zona; si no, no se redirige a ninguna.
+        if (district.isNullOrBlank() || district.equals("Fuera de cobertura", ignoreCase = true)) {
+            showSosConfirmation(null, "Alerta SOS enviada, pero no hay una municipalidad registrada en tu zona.")
             return
         }
 
@@ -730,13 +748,13 @@ class MapActivity : AppCompatActivity() {
                 if (response.isSuccessful && municipality != null) {
                     showSosConfirmation(municipality, "Alerta SOS enviada a ${municipality.district ?: district}.")
                 } else {
-                    showSosConfirmation(null, "Alerta SOS enviada a $district. No se encontró teléfono municipal.")
+                    showSosConfirmation(null, "Alerta SOS enviada, pero $district no tiene una municipalidad registrada.")
                 }
             }
 
             override fun onFailure(call: Call<MunicipalityProfile>, t: Throwable) {
                 Log.e("SOS", "No se pudo obtener municipalidad: ${t.message}")
-                showSosConfirmation(null, "Alerta SOS enviada. No se pudo cargar el teléfono municipal.")
+                showSosConfirmation(null, "Alerta SOS enviada. No se pudo verificar la municipalidad.")
             }
         })
     }

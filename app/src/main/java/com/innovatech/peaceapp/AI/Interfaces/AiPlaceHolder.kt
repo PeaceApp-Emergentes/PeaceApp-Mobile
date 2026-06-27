@@ -4,6 +4,8 @@ import com.innovatech.peaceapp.AI.Beans.ChatbotRequest
 import com.innovatech.peaceapp.AI.Beans.ChatbotResponse
 import com.innovatech.peaceapp.AI.Beans.ClassifyIncidentRequest
 import com.innovatech.peaceapp.AI.Beans.ClassifyIncidentResponse
+import com.innovatech.peaceapp.AI.Beans.AnalyzeEvidenceRequest
+import com.innovatech.peaceapp.AI.Beans.AnalyzeEvidenceResponse
 import retrofit2.Call
 import retrofit2.http.Body
 import retrofit2.http.POST
@@ -14,4 +16,7 @@ interface AiPlaceHolder {
 
     @POST("api/v1/ai/classify-incident")
     fun classifyIncident(@Body request: ClassifyIncidentRequest): Call<ClassifyIncidentResponse>
+
+    @POST("api/v1/ai/analyze-evidence")
+    fun analyzeEvidence(@Body request: AnalyzeEvidenceRequest): Call<AnalyzeEvidenceResponse>
 }
